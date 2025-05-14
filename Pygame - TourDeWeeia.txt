@@ -1,0 +1,20 @@
+Pomysły na grę Pygame TourDeWeeia
+
+MUST HAVE:
+	•Update sprite (postaci) w zależności w która stronę idzie
+	•Przechodzenie z mapy na mapę (zrobić nowe mapki, zaktualizować stare)
+	•Dodanie punktów startowych i końcowych (oraz ich losowanie)
+	•Dodanie możliwości grania w 2 graczy (split screen albo multi)
+	•BO3 Wyścig, po końcu 1 wyścigu następuje freezetime (pauza), liczenie czasu i wyniku na bieżąco i wyświetlanie.
+	•Elementy losowości
+
+Możliwe zdarzenia losowe:
+	•Wykryto plagiat na Dante, jesteś goniony, następnie minigra
+	•Przewróciłeś się na schodach i pękła ci łękotka.
+	•Rozdawanie napoi energetycznych na wydziale (Bonus do Movement Speeda)
+	•zatrzymal cie portier stoisz chwile w miejscu (wyznaczone pole w którym portier może zlapac focus)
+	•dzień wydzialu (chcesz popkorn?)
+	•zmiana sali (po dojściu do tej która była wylosowana na początku)
+	•podbija randomowy uczen zeby sie zapoznac musisz go wyminac
+	•bomba w budynku
+	•remont wydzialu (przejscie zablokowane)
