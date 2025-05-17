@@ -20,13 +20,15 @@ class Game:
             (50, 50, 50) #pol czarny pol nie bo cos sie buguje xdd
         )
 
-        self.WIDTH, self.HEIGHT = self.bg_image.get_size()
-
+        self.MAP_WIDTH, self.MAP_HEIGHT = self.bg_image.get_size()
+        self.WIDTH = WIDTH
+        self.HEIGHT = HEIGHT
         self.screen = pygame.display.set_mode((self.WIDTH, self.HEIGHT))
         pygame.display.set_caption("Tour de Weeia")
 
         self.clock = pygame.time.Clock()
         self.running = True
+        self.camera_offset = pygame.Vector2(0, 0)
         self.all_sprites = pygame.sprite.Group()
 
     def run(self):
@@ -44,11 +46,18 @@ class Game:
     def update(self):
         keys = pygame.key.get_pressed()
         self.player.update(keys, self.collision_mask)
+        self.camera_offset.x = self.player.rect.centerx - self.WIDTH // 2
+        self.camera_offset.y = self.player.rect.centery - self.HEIGHT // 2
 
 
     def draw(self):
-        self.screen.blit(self.bg_image, (0, 0))
-        self.all_sprites.draw(self.screen)
+        #czyszczenie tla po zalaczeniu gierki
+        self.screen.fill((255, 255, 255))
+        self.screen.blit(self.bg_image, (-self.camera_offset.x, -self.camera_offset.y))
+
+
+        for sprite in self.all_sprites:
+            self.screen.blit(sprite.image, sprite.rect.topleft - self.camera_offset)
         pygame.display.flip()
 
     def intro_screen(self):
