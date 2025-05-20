@@ -1,26 +1,23 @@
-import pygame
 import sys
 from sprites import *
 from config import *
 from menu import *
+from map_config import MapConfig
 
 
 class Game:
     def __init__(self):
+        self.MAP_HEIGHT = None
+        self.MAP_WIDTH = None
         pygame.init()
 
-        temp_screen = pygame.display.set_mode((1, 1))
+        pygame.display.set_mode((1, 1))
 
-        self.bg_image = pygame.image.load("img/wejscie.png").convert()
-        self.collision_mask_image = pygame.image.load("img/wejscie_maska.png").convert()
-        self.collision_mask_image.set_colorkey((255, 255, 255))
-        self.collision_mask = pygame.mask.from_threshold(
-            self.collision_mask_image,
-            (0, 0, 0),
-            (50, 50, 50) #pol czarny pol nie bo cos sie buguje xdd
-        )
+        self.map_config = MapConfig()
+        self.current_map = None
+        self.bg_image = None
+        self.collision_mask = None
 
-        self.MAP_WIDTH, self.MAP_HEIGHT = self.bg_image.get_size()
         self.WIDTH = WIDTH
         self.HEIGHT = HEIGHT
         self.screen = pygame.display.set_mode((self.WIDTH, self.HEIGHT))
@@ -30,6 +27,11 @@ class Game:
         self.running = True
         self.camera_offset = pygame.Vector2(0, 0)
         self.all_sprites = pygame.sprite.Group()
+
+    def load_map(self, map_obj):
+        self.bg_image, self.collision_mask = map_obj.load()
+        self.MAP_WIDTH, self.MAP_HEIGHT = self.bg_image.get_size()
+        self.current_map = map_obj
 
     def run(self):
         while self.running:
@@ -49,12 +51,10 @@ class Game:
         self.camera_offset.x = self.player.rect.centerx - self.WIDTH // 2
         self.camera_offset.y = self.player.rect.centery - self.HEIGHT // 2
 
-
     def draw(self):
-        #czyszczenie tla po zalaczeniu gierki
+        # czyszczenie tla po zalaczeniu gierki
         self.screen.fill((255, 255, 255))
         self.screen.blit(self.bg_image, (-self.camera_offset.x, -self.camera_offset.y))
-
 
         for sprite in self.all_sprites:
             self.screen.blit(sprite.image, sprite.rect.topleft - self.camera_offset)
@@ -66,6 +66,8 @@ class Game:
         def start_game():
             nonlocal intro
             self.all_sprites = pygame.sprite.Group()
+            wejscie_mapa = next(m for m in self.map_config.maps if m.name=="Korytarz na parterze")
+            self.load_map(wejscie_mapa)
             self.player = Player(120, 100)
             self.all_sprites.add(self.player)
             intro = False
