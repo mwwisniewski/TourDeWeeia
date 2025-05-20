@@ -11,7 +11,7 @@ class Game:
 
         temp_screen = pygame.display.set_mode((1, 1))
 
-        self.bg_image = pygame.image.load("img/wejscie.png").convert()
+        self.bg_image = pygame.image.load("img/wejscie weeia i parter.png").convert()
         self.collision_mask_image = pygame.image.load("img/wejscie_maska.png").convert()
         self.collision_mask_image.set_colorkey((255, 255, 255))
         self.collision_mask = pygame.mask.from_threshold(
@@ -31,6 +31,8 @@ class Game:
         self.camera_offset = pygame.Vector2(0, 0)
         self.all_sprites = pygame.sprite.Group()
 
+        self.zoom = 2
+
     def run(self):
         while self.running:
             self.handle_events()
@@ -49,15 +51,27 @@ class Game:
         self.camera_offset.x = self.player.rect.centerx - self.WIDTH // 2
         self.camera_offset.y = self.player.rect.centery - self.HEIGHT // 2
 
-
     def draw(self):
-        #czyszczenie tla po zalaczeniu gierki
         self.screen.fill((255, 255, 255))
-        self.screen.blit(self.bg_image, (-self.camera_offset.x, -self.camera_offset.y))
 
+        scaled_bg = pygame.transform.smoothscale(
+            self.bg_image,
+            (int(self.MAP_WIDTH * self.zoom), int(self.MAP_HEIGHT * self.zoom))
+        )
+
+        player_center = self.player.rect.center
+        self.camera_offset.x = player_center[0] * self.zoom - self.WIDTH // 2
+        self.camera_offset.y = player_center[1] * self.zoom - self.HEIGHT // 2
+        self.screen.blit(scaled_bg, (-self.camera_offset.x, -self.camera_offset.y))
 
         for sprite in self.all_sprites:
-            self.screen.blit(sprite.image, sprite.rect.topleft - self.camera_offset)
+            scaled_pos = pygame.Vector2(sprite.rect.topleft) * self.zoom - self.camera_offset
+            scaled_img = pygame.transform.smoothscale(
+                sprite.image,
+                (int(sprite.rect.width * self.zoom), int(sprite.rect.height * self.zoom))
+            )
+            self.screen.blit(scaled_img, scaled_pos)
+
         pygame.display.flip()
 
     def intro_screen(self):
