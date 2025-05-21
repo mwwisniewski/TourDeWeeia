@@ -12,7 +12,7 @@ class Game:
         temp_screen = pygame.display.set_mode((1, 1))
 
         self.bg_image = pygame.image.load("img/wejscie weeia i parter.png").convert()
-        self.collision_mask_image = pygame.image.load("img/wejscie_maska.png").convert()
+        self.collision_mask_image = pygame.image.load("img/wejscie weeia i parter_maska.png").convert()
         self.collision_mask_image.set_colorkey((255, 255, 255))
         self.collision_mask = pygame.mask.from_threshold(
             self.collision_mask_image,
