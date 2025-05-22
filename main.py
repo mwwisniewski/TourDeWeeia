@@ -27,6 +27,7 @@ class Game:
         self.running = True
         self.camera_offset = pygame.Vector2(0, 0)
         self.all_sprites = pygame.sprite.Group()
+        self.zoom = 2
 
     def load_map(self, map_obj):
         self.bg_image, self.collision_mask = map_obj.load()
@@ -52,12 +53,24 @@ class Game:
         self.camera_offset.y = self.player.rect.centery - self.HEIGHT // 2
 
     def draw(self):
-        # czyszczenie tla po zalaczeniu gierki
         self.screen.fill((255, 255, 255))
-        self.screen.blit(self.bg_image, (-self.camera_offset.x, -self.camera_offset.y))
+        scaled_bg = pygame.transform.smoothscale(
+            self.bg_image,
+            (int(self.MAP_WIDTH * self.zoom), int(self.MAP_HEIGHT * self.zoom))
+        )
+
+        player_center = self.player.rect.center
+        self.camera_offset.x = player_center[0] * self.zoom - self.WIDTH // 2
+        self.camera_offset.y = player_center[1] * self.zoom - self.HEIGHT // 2
+        self.screen.blit(scaled_bg, (-self.camera_offset.x, -self.camera_offset.y))
 
         for sprite in self.all_sprites:
-            self.screen.blit(sprite.image, sprite.rect.topleft - self.camera_offset)
+            scaled_pos = pygame.Vector2(sprite.rect.topleft) * self.zoom - self.camera_offset
+            scaled_img = pygame.transform.smoothscale(
+                sprite.image,
+                (int(sprite.rect.width * self.zoom), int(sprite.rect.height * self.zoom))
+            )
+            self.screen.blit(scaled_img, scaled_pos)
         pygame.display.flip()
 
     def intro_screen(self):
@@ -66,7 +79,7 @@ class Game:
         def start_game():
             nonlocal intro
             self.all_sprites = pygame.sprite.Group()
-            wejscie_mapa = next(m for m in self.map_config.maps if m.name=="Korytarz na parterze")
+            wejscie_mapa = next(m for m in self.map_config.maps if m.name == "Korytarz na parterze")
             self.load_map(wejscie_mapa)
             self.player = Player(120, 100)
             self.all_sprites.add(self.player)
