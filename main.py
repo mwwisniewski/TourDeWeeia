@@ -31,6 +31,9 @@ class Game:
         self.camera_offset = pygame.Vector2(0, 0)
         self.all_sprites = pygame.sprite.Group()
 
+        self.awaiting_name_input = False
+        self.input_text = ""
+
         self.zoom = 2
 
     def run(self):
@@ -44,6 +47,35 @@ class Game:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 self.running = False
+            if self.events.awaiting_kurtka_answer:
+                keys = pygame.key.get_pressed()
+                if keys[pygame.K_t]:
+                    print("✅ Zostawiłeś kurtkę.")
+                    self.events.awaiting_kurtka_answer = False
+                elif keys[pygame.K_n]:
+                    print("❌ Zatrzymujesz kurtkę przy sobie.")
+                    self.events.awaiting_kurtka_answer = False
+            if self.events.awaiting_dzien_wydzialu_answer:
+                keys = pygame.key.get_pressed()
+                if keys[pygame.K_t]:
+                    print("✅ Student: 'Super! Podasz swoje imię?'")
+                    self.events.awaiting_dzien_wydzialu_answer = False
+                    self.awaiting_name_input = True
+                    self.input_text = ""
+                elif keys[pygame.K_n]:
+                    print("😐 Student: 'Aha... no to trudno.'")
+                    self.events.awaiting_dzien_wydzialu_answer = False
+            if self.awaiting_name_input:
+                for event in pygame.event.get():
+                    if event.type == pygame.KEYDOWN:
+                        if event.key == pygame.K_RETURN:
+                            print(f"📝 Student: 'Dzięki, {self.input_text}!'")
+                            self.awaiting_name_input = False
+                        elif event.key == pygame.K_BACKSPACE:
+                            self.input_text = self.input_text[:-1]
+                        else:
+                            self.input_text += event.unicode
+
 
     def update(self):
         keys = pygame.key.get_pressed()
