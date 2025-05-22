@@ -6,7 +6,7 @@ from config import *
 
 
 class Player(pygame.sprite.Sprite):
-    def __init__(self, x, y):
+    def __init__(self, x, y,control_type):
         super().__init__()
         self.image = pygame.Surface((28, 28))
         self.image.fill((0, 255, 0))
@@ -19,7 +19,7 @@ class Player(pygame.sprite.Sprite):
         self.broken_leg = False
         self.on_reach_target = None
         self.current_goal = None
-
+        self.control_type = control_type ## 1 wsad 2 strzalki
         #self.currentEvent
 
 
@@ -64,25 +64,25 @@ class Player(pygame.sprite.Sprite):
             return
 
         dx, dy = 0, 0
-        if keys[pygame.K_w]:
-            dy = -self.speed
-        if keys[pygame.K_s]:
-            dy = self.speed
-        if keys[pygame.K_a]:
-            dx = -self.speed
-        if keys[pygame.K_d]:
-            dx = self.speed
-        self.posX += dx
-        self.posY += dy
-        if self.control:
-            dx = dy = 0
-            if keys[up]:
+        if self.control and self.control_type==CONTROL_TYPE_WSAD:
+            if keys[pygame.K_w]:
                 dy = -self.speed
-            if keys[down]:
+            if keys[pygame.K_s]:
                 dy = self.speed
-            if keys[left]:
+            if keys[pygame.K_a]:
                 dx = -self.speed
-            if keys[right]:
+            if keys[pygame.K_d]:
+                dx = self.speed
+            self.posX += dx
+            self.posY += dy
+        elif self.control and self.control_type==CONTROL_TYPE_ARROWS:
+            if keys[pygame.K_UP]:
+                dy = -self.speed
+            if keys[pygame.K_DOWN]:
+                dy = self.speed
+            if keys[pygame.K_LEFT]:
+                dx = -self.speed
+            if keys[pygame.K_RIGHT]:
                 dx = self.speed
         new_rect = self.rect.move(dx, dy)
 

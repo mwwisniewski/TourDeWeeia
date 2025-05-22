@@ -1,8 +1,5 @@
 import pygame
 import sys
-
-from win32gui import UpdateLayeredWindow
-
 from sprites import *
 from config import *
 from menu import *
@@ -36,9 +33,10 @@ class Game:
         self.all_sprites = pygame.sprite.Group()
         #zoom
         self.zoom = 2
+
         #game logic
-        self.player1=Player(0,0)#spawnpointy losowac
-        self.player2=Player(0,0)
+        self.player1=Player(0,0,CONTROL_TYPE_WSAD)#spawnpointy losowac
+        self.player2=Player(0,0,CONTROL_TYPE_ARROWS)
         #self.all_sprites.add(self.player1) dorobic sprite
         #self.all_sprites.add(self.player2)
         goal_rect = pygame.Rect(0,0,0,0)  # miejsce do którego trzeba dotrzeć
