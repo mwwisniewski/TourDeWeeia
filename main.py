@@ -2,7 +2,7 @@ import sys
 from sprites import *
 from config import *
 from menu import *
-from map_config import MapConfig
+from map_config import *
 
 
 class Game:
@@ -51,6 +51,14 @@ class Game:
         self.player.update(keys, self.collision_mask)
         self.camera_offset.x = self.player.rect.centerx - self.WIDTH // 2
         self.camera_offset.y = self.player.rect.centery - self.HEIGHT // 2
+        for transition in self.current_map.transitions:
+            if transition.area_rect.colliderect(self.player.rect):
+                target_map=self.map_config.get_map_by_name(transition.next_map_name)
+                if target_map:
+                    self.load_map(target_map)
+                    spawn = transition.target_spawn
+                    self.player.rect.topleft = spawn
+                    break
 
     def draw(self):
         self.screen.fill((255, 255, 255))
@@ -79,9 +87,10 @@ class Game:
         def start_game():
             nonlocal intro
             self.all_sprites = pygame.sprite.Group()
-            wejscie_mapa = next(m for m in self.map_config.maps if m.name == "Korytarz na parterze")
-            self.load_map(wejscie_mapa)
-            self.player = Player(120, 100)
+            aktualnamapa = self.map_config.get_random_map()
+            self.load_map(aktualnamapa)
+            spawn_x, spawn_y = aktualnamapa.get_random_spawn_point()
+            self.player = Player(spawn_x, spawn_y)
             self.all_sprites.add(self.player)
             intro = False
 
