@@ -1,8 +1,12 @@
 import pygame
 import sys
+
+from win32gui import UpdateLayeredWindow
+
 from sprites import *
 from config import *
 from menu import *
+from gamelogic import RaceManager
 
 
 class Game:
@@ -19,7 +23,7 @@ class Game:
             (0, 0, 0),
             (50, 50, 50) #pol czarny pol nie bo cos sie buguje xdd
         )
-
+        #mapa
         self.MAP_WIDTH, self.MAP_HEIGHT = self.bg_image.get_size()
         self.WIDTH = WIDTH
         self.HEIGHT = HEIGHT
@@ -30,8 +34,18 @@ class Game:
         self.running = True
         self.camera_offset = pygame.Vector2(0, 0)
         self.all_sprites = pygame.sprite.Group()
-
+        #zoom
         self.zoom = 2
+        #game logic
+        self.player1=Player(0,0)#spawnpointy losowac
+        self.player2=Player(0,0)
+        #self.all_sprites.add(self.player1) dorobic sprite
+        #self.all_sprites.add(self.player2)
+        goal_rect = pygame.Rect(0,0,0,0)  # miejsce do którego trzeba dotrzeć
+        self.race = RaceManager(self.player1, self.player2, goal_rect)
+        self.race.start_round()
+
+
 
     def run(self):
         while self.running:
@@ -50,6 +64,20 @@ class Game:
         self.player.update(keys, self.collision_mask)
         self.camera_offset.x = self.player.rect.centerx - self.WIDTH // 2
         self.camera_offset.y = self.player.rect.centery - self.HEIGHT // 2
+        ########
+        keys = pygame.key.get_pressed()
+        # Gracz 1: W, S, A, D
+        self.player1.update(keys, self.collision_mask,
+                            up=pygame.K_w,down=pygame.K_s, left=pygame.K_a,right=pygame.K_d)
+        # Gracz 2: strzałki
+        self.player2.update(keys, self.collision_mask,
+                            up=pygame.K_UP, down=pygame.K_DOWN, left=pygame.K_LEFT,right=pygame.K_RIGHT)
+
+
+        self.camera_offset.x = self.player1.rect.centerx - self.WIDTH // 2
+        self.camera_offset.y = self.player1.rect.centery - self.HEIGHT // 2
+
+        self.race.update()
 
     def draw(self):
         self.screen.fill((255, 255, 255))
