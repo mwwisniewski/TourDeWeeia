@@ -2,7 +2,7 @@ WIDTH = 1000
 HEIGHT = 800
 TILESIZE = 32
 FPS = 60
-PLAYER_SPEED = 10 #pozniej zmienic na 3
+PLAYER_SPEED = 10 #na potrzebe debuga, pozniej zmienic na 3
 
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)

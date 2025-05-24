@@ -2,54 +2,47 @@ import pygame
 import random
 
 
-class Map:
-    def __init__(self, name, path, mask_path, spawn_points, transitions=None):
+class TransitionZone:
+    def __init__(self, name, area_rect, target_position):
         self.name = name
+        self.rect = area_rect
+        self.target_position = target_position
+
+
+class Map:
+    def __init__(self, path, mask_path, spawn_points, transition_zones=None):
         self.path = path
         self.mask_path = mask_path
         self.spawn_points = spawn_points
-        self.transitions = transitions or []
+        self.transition_zones = transition_zones
 
     def load(self):
         bg_image = pygame.image.load(self.path).convert()
-        collision_mask = pygame.image.load(self.mask_path).convert()
-        collision_mask.set_colorkey((255, 255, 255))
-        collision_mask = pygame.mask.from_threshold(collision_mask, (0, 0, 0), (50, 50, 50))
-        return bg_image, collision_mask
+        mask_image = pygame.image.load(self.mask_path).convert()
+        mask_image.set_colorkey((255, 255, 255))
+        mask_image = pygame.mask.from_threshold(mask_image, (0, 0, 0), (50, 50, 50))
+        return bg_image, mask_image
 
     def get_random_spawn_point(self):
         return random.choice(self.spawn_points)
 
 
-class MapConfig:
-    def __init__(self):
-        glowne_wejscie_transition = [
-            MapTransition(pygame.Rect(235, 1100, 400, 400), "Pierwsze pietro", target_spawn=(135, 175))
-        ]
-
-        self.maps = [
-            Map("Glowne wejscie", "img/wejscie weeia i parter.png", "img/wejscie weeia i parter_maska.png",
-                [(150, 262), (1530, 775)], transitions=glowne_wejscie_transition),
-            # Map("Korytarz na parterze", "img/parter dlugi korytarz + szatnia.png",
-            #    "img/parter dlugi korytarz + szatnia_maska.png", [(1141, 46), (1126, 1526)]),
-            # Map("Budynek IMSI", "img/imsi.png", "img/imsi_maska.png", [(135, 90)]),
-            # Map("Pierwsze pietro", "img/pierwsze pietro.png", "img/pierwsze pietro_maska.png",
-            #    [(1020, 1480), (1450, 100)]),
-            # Map("Pietra przy sieciach", "img/pietra przy sieciach.png", "img/pietra przy sieciach_maska.png",
-            #    [(105, 320)]),
-            # Map("Klatka schodowa", "img/klatka schodowa.png", "img/klatka schodowa_maska.png", [(300, 525)])
-            # tymczasowe pozniej zmienic jak nowa mapa bedzie
-        ]
-
-    def get_random_map(self):
-        return random.choice(self.maps)
-
-    def get_map_by_name(self, name):
-        return next((m for m in self.maps if m.name == name), None)
-
-
-class MapTransition:
-    def __init__(self, area_rect, next_map_name, target_spawn=None):
-        self.area_rect = area_rect
-        self.next_map_name = next_map_name
-        self.target_spawn = target_spawn
+def create_main_map():
+    transitions = [
+        TransitionZone("Wejscie WEEIA -> Pierwsze pietro", pygame.Rect(2030, 1450, 240, 100), (130, 110)),
+        TransitionZone("Wejscie WEEIA -> Parter dlugi korytarz", pygame.Rect(3060, 1540, 180, 30), (2955, 1750)),
+        TransitionZone("Wejscie WEEIA -> Pierwsze pietro sieci (DT i Bistro)", pygame.Rect(2230, 110, 50, 80),
+                       (4540, 400)),
+        TransitionZone("Parter dlugi korytarz -> Wejscie WEEIA", pygame.Rect(2870, 1690, 170, 30), (3150, 1510)),
+        TransitionZone("Parter dlugi korytarz -> Pierwsze pietro #1", pygame.Rect(2575, 1680, 25, 90), (1040, 180)),
+        TransitionZone("Parter dlugi korytarz -> Pierwsze pietro #2", pygame.Rect(2420, 2710, 100, 180), (840, 1150)),
+        TransitionZone("Pierwsze pietro -> Wejscie WEEIA", pygame.Rect(40, 40, 185, 40), (2150, 1430)),
+        TransitionZone("Pierwsze pietro -> Parter dlugi korytarz #1", pygame.Rect(968, 135, 32, 90), (2645, 1730)),
+        TransitionZone("Pierwsze pietro -> Parter dlugi korytarz #2", pygame.Rect(616, 1065, 134, 175), (2620, 2760)),
+        TransitionZone("Pierwsze pietro -> IMSI", pygame.Rect(1535, 685, 30, 40), (1510, 3150)),
+        TransitionZone("IMSI -> Pierwsze pietro", pygame.Rect(1490, 3210, 60, 40), (1440, 705)),
+        TransitionZone("Pierwsze pietro sieci (DT i Bistro) -> Wejscie WEEIA", pygame.Rect(4460, 250, 180, 70),
+                       (2150, 150))
+    ]
+    spawn_list = [(1950, 300)]
+    return Map("img/mapa.png", "img/mapa_maska_test.png", spawn_list, transition_zones=transitions)
