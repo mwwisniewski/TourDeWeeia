@@ -1,4 +1,5 @@
 import sys
+import pygame
 import map_config
 from sprites import *
 from config import *

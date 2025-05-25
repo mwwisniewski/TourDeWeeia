@@ -42,7 +42,21 @@ def create_main_map():
         TransitionZone("Pierwsze pietro -> IMSI", pygame.Rect(1535, 685, 30, 40), (1510, 3150)),
         TransitionZone("IMSI -> Pierwsze pietro", pygame.Rect(1490, 3210, 60, 40), (1440, 705)),
         TransitionZone("Pierwsze pietro sieci (DT i Bistro) -> Wejscie WEEIA", pygame.Rect(4460, 250, 180, 70),
-                       (2150, 150))
+                       (2150, 150)),
+        TransitionZone("Pierwsze pietro sieci (DT i Bistro) -> Drugie pietro sieci", pygame.Rect(4360, 55, 80, 180),
+                       (5730, 425)),
+        TransitionZone("Drugie pietro sieci -> Pierwsze pietro sieci (DT i Bistro)", pygame.Rect(5640, 280, 185, 80),
+                       (4330, 135)),
+        TransitionZone("Drugie pietro sieci -> Drugi korytarz sieci", pygame.Rect(5255, 285, 25, 175), (4950, 325)),
+        TransitionZone("Drugie pietro sieci -> Trzecie pietro sieci", pygame.Rect(5540, 85, 90, 185), (6870, 440)),
+        TransitionZone("Drugi korytarz sieci -> Drugie pietro sieci", pygame.Rect(5030,255,25,175), (5330,370)),
+        TransitionZone("Trzecie pietro sieci -> Drugie pietro sieci", pygame.Rect(6780, 295, 185, 80), (5480, 175)),
+        TransitionZone("Trzecie pietro sieci -> Trzeci korytarz sieci", pygame.Rect(6400,300,25,175),(6100,380)),
+        TransitionZone("Trzecie pietro sieci -> Czwarte pietro sieci", pygame.Rect(6680,105,90,185),(8010,425)),
+        TransitionZone("Trzeci korytarz sieci -> Trzecie pietro sieci", pygame.Rect(6175,290,25,175),(6490,385)),
+        TransitionZone("Czwarte pietro sieci -> Trzecie pietro sieci", pygame.Rect(7920,305,185,80),(6625,195)),
+        TransitionZone("Czwarte pietro sieci -> Czwarty korytarz sieci", pygame.Rect(7535,310,25,175),(7250,395)),
+        TransitionZone("Czwarty korytarz sieci -> Czwarte pietro sieci", pygame.Rect(7335, 310,25,175), (7630,395))
     ]
     spawn_list = [(1950, 300)]
     return Map("img/mapa.png", "img/mapa_maska_test.png", spawn_list, transition_zones=transitions)
