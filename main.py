@@ -1,3 +1,4 @@
+import random
 import sys
 import pygame
 import map_config
@@ -15,6 +16,7 @@ class Game:
         self.MAP_WIDTH = None
 
         self.game_map = map_config.create_main_map()
+        self.current_target_room = random.choice(self.game_map.target_rooms)
         self.bg_image, self.collision_mask = self.game_map.load()
         self.MAP_WIDTH, self.MAP_HEIGHT = self.bg_image.get_size()
 
@@ -32,7 +34,10 @@ class Game:
         self.camera_offset = pygame.Vector2(0, 0)
         self.all_sprites = pygame.sprite.Group()
         self.player = None  # Zeby pozbyc sie Unresolved reference
-        self.debug_mode = True  # DO TESTOW POTEM ZMIENIC NA FALSE!! (POKAZUJE STREFY PRZEJSC,FPSY I INNE)
+        self.debug_mode = True  # DO TESTOW POTEM ZMIENIC NA FALSE LUB NONE!! (POKAZUJE STREFY PRZEJSC, STREFY SAL ORAZ FPSY)
+        if self.debug_mode:
+            self.printed_destination = False
+            self.printed_arrived = False
 
     def run(self):
         while self.running:
@@ -58,6 +63,14 @@ class Game:
                     print(f"[PRZEJSCIE TEST] {zone.name} -> {zone.target_position}")
                 self.player.rect.topleft = zone.target_position
                 break
+        if self.debug_mode:
+            if self.printed_destination is False:
+                print(f"WYLOSOWANA SALA: {self.current_target_room.name}")
+                self.printed_destination = True
+            if self.printed_arrived is False:
+                if self.current_target_room.rect.colliderect(self.player.rect):
+                    print(f"TRAFILES DO SALI: {self.current_target_room.name}")
+                    self.printed_arrived = True
 
     def draw(self):
         self.screen.fill((255, 255, 255))
@@ -79,6 +92,17 @@ class Game:
                 debug_rect.width *= self.zoom
                 debug_rect.height *= self.zoom
                 pygame.draw.rect(self.screen, (255, 0, 0), debug_rect.move(-self.camera_offset), 2)
+            for room in self.game_map.target_rooms:
+                debug_rect = room.rect.copy()
+                debug_rect.x *= self.zoom
+                debug_rect.y *= self.zoom
+                debug_rect.width *= self.zoom
+                debug_rect.height *= self.zoom
+                if room == self.current_target_room:
+                    pygame.draw.rect(self.screen, (0, 255, 0), debug_rect.move(-self.camera_offset), 2)
+                else:
+                    pygame.draw.rect(self.screen, (0, 0, 255), debug_rect.move(-self.camera_offset), 2)
+
             pygame.display.set_caption(f"FPS: {self.clock.get_fps()}")
 
         pygame.display.flip()
