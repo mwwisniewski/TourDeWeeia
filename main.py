@@ -5,6 +5,7 @@ import map_config
 from sprites import *
 from config import *
 from menu import *
+from gamelogic import RaceManager
 
 
 class Game:
@@ -39,11 +40,21 @@ class Game:
             self.printed_destination = False
             self.printed_arrived = False
 
+        #game logic
+        self.player1=Player(0,0,CONTROL_TYPE_WSAD)#spawnpointy losowac
+        self.player2=Player(0,0,CONTROL_TYPE_ARROWS)
+        #self.all_sprites.add(self.player1) dorobic sprite
+        #self.all_sprites.add(self.player2)
+
+
+
     def run(self):
         while self.running:
             self.handle_events()
             self.update()
             self.draw()
+            if not self.race.round_active and not self.race.game_over:
+                self.race.start_round()
             self.clock.tick(FPS)
 
     def handle_events(self):
@@ -53,10 +64,23 @@ class Game:
 
     def update(self):
         keys = pygame.key.get_pressed()
-        self.player.update(keys, self.collision_mask)
-        self.camera_offset.x = (self.player.rect.centerx * self.zoom) - self.WIDTH // 2
-        self.camera_offset.y = (self.player.rect.centery * self.zoom) - self.HEIGHT // 2
+        self.player1.update(keys, self.collision_mask)
+        self.camera_offset.x = self.player1.rect.centerx - self.WIDTH // 2
+        self.camera_offset.y = self.player1.rect.centery - self.HEIGHT // 2
+        ########
+        self.player2.update(keys, self.collision_mask)
+        self.camera_offset.x = self.player2.rect.centerx - self.WIDTH // 2
+        self.camera_offset.y = self.player2.rect.centery - self.HEIGHT // 2
+        keys = pygame.key.get_pressed()
+        # Gracz 1: W, S, A, D
+        self.player1.update(keys, self.collision_mask)
+        # Gracz 2: strzałki
+        self.player2.update(keys, self.collision_mask)
 
+
+        self.camera_offset.x = self.player1.rect.centerx - self.WIDTH // 2
+        self.camera_offset.y = self.player1.rect.centery - self.HEIGHT // 2
+        
         for zone in self.game_map.transition_zones:
             if zone.rect.colliderect(self.player.rect):
                 if self.debug_mode:
@@ -71,6 +95,10 @@ class Game:
                 if self.current_target_room.rect.colliderect(self.player.rect):
                     print(f"TRAFILES DO SALI: {self.current_target_room.name}")
                     self.printed_arrived = True
+
+                    
+         self.race.update()
+        
 
     def draw(self):
         self.screen.fill((255, 255, 255))
@@ -113,9 +141,17 @@ class Game:
         def start_game():
             nonlocal intro
             self.all_sprites = pygame.sprite.Group()
-            spawn_x, spawn_y = self.game_map.get_random_spawn_point()
-            self.player = Player(spawn_x, spawn_y)
-            self.all_sprites.add(self.player)
+            spawn_x1, spawn_y1 = self.game_map.get_random_spawn_point()
+            spawn_x2, spawn_y2 = self.game_map.get_random_spawn_point()
+
+            self.player1 = Player(spawn_x1, spawn_y1, CONTROL_TYPE_WSAD)
+            self.player2 = Player(spawn_x2, spawn_y2,CONTROL_TYPE_ARROWS)
+            self.all_sprites.add(self.player1)
+            self.all_sprites.add(self.player2)
+            goal_rect = pygame.Rect(200, 220,40,40)  # miejsce do którego trzeba dotrzeć
+            self.race = RaceManager(self.player1, self.player2, goal_rect)
+
+
             intro = False
 
         def open_settings():

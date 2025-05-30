@@ -2,8 +2,10 @@ WIDTH = 1000
 HEIGHT = 800
 TILESIZE = 32
 FPS = 60
-PLAYER_SPEED = 10 #na potrzebe debuga, pozniej zmienic na 3
-
+PLAYER_SPEED = 3
+CONTROL_TYPE_WSAD = 1
+CONTROL_TYPE_ARROWS = 2
+PLAYER_SPEED = 5 #na potrzebe debuga, pozniej zmienic na 3
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
 BORDEAUX = (128, 0, 32)
