@@ -6,10 +6,10 @@ from config import *
 
 
 class Player(pygame.sprite.Sprite):
-    def __init__(self, x, y,control_type):
+    def __init__(self, x, y,control_type, color):
         super().__init__()
         self.image = pygame.Surface((28, 28))
-        self.image.fill((0, 255, 0))
+        self.image.fill(color)
         self.rect = self.image.get_rect(topleft=(x, y))
         self.speed = PLAYER_SPEED
         self.posX, self.posY = x, y
@@ -23,6 +23,9 @@ class Player(pygame.sprite.Sprite):
         #self.currentEvent
 
 
+    def random_spawn_point(self,x,y):
+        self.rect = self.image.get_rect(topleft=(x, y))
+        self.posX, self.posY = x, y
 
     def update(self, keys, collision_mask):
         if pygame.time.get_ticks() < self.freeze_until:

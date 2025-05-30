@@ -1,11 +1,10 @@
 import pygame
 
 class RaceManager:
-    def __init__(self, player1, player2, goal_rect):
+    def __init__(self, player1, player2):
         self.player1 = player1
         self.player2 = player2
-        self.goal_rect = goal_rect
-
+        self.goal_rect = None
         self.player1points = 0
         self.player2points = 0
         self.globaltimer = 0
@@ -20,7 +19,8 @@ class RaceManager:
         self.round_active = False
         self.game_over = False
 
-    def start_round(self):
+    def start_round(self,goal_rect):
+        self.goal_rect = goal_rect
         print(f"▶️ Runda {self.round_index + 1}!") #freeze obydwu graczy
         self.player1.freeze(1000)
         self.player2.freeze(1000)
@@ -80,22 +80,20 @@ class RaceManager:
 
         if self.round_index >= 3:
             self.end_match()
-        else:
-            self.start_round()
 
     def end_match(self):
         self.game_over = True
         print("🎉 Koniec gry!")
-        print(f"Gracz 1: {self.player1points} pkt"
-              f"/tCzasy: "
-              f"runda 1: {self.player1times[0]} "
-              f"runda 2: {self.player1times[1]} "
-              f"runda 3: {self.player1times[2]} ")
-        print(f"Gracz 2: {self.player2points} pkt"
-              f"/tCzasy: "
-              f"runda 1: {self.player2times[0]} "
-              f"runda 2: {self.player2times[1]} "
-              f"runda 3: {self.player2times[2]} ")
+        print(f"Gracz 1: {self.player1points} pkt\n"
+              f"\tCzasy: \n"
+              f"runda 1: {self.player1times[0]} \n"
+              f"runda 2: {self.player1times[1]} \n"
+              f"runda 3: {self.player1times[2]} \n")
+        print(f"Gracz 2: {self.player2points} pkt\n"
+              f"\tCzasy: \n"
+              f"runda 1: {self.player2times[0]} \n"
+              f"runda 2: {self.player2times[1]} \n"
+              f"runda 3: {self.player2times[2]} \n")
 
         if self.player1points > self.player2points:
             print("🥇 Wygrywa Gracz 1!")
