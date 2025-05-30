@@ -1,5 +1,7 @@
-import pygame
+import random
 import sys
+import pygame
+import map_config
 from sprites import *
 from config import *
 from menu import *
@@ -9,30 +11,34 @@ from gamelogic import RaceManager
 class Game:
     def __init__(self):
         pygame.init()
+        pygame.display.set_mode((1, 1))
 
-        temp_screen = pygame.display.set_mode((1, 1))
+        self.MAP_HEIGHT = None
+        self.MAP_WIDTH = None
 
-        self.bg_image = pygame.image.load("img/wejscie weeia i parter.png").convert()
-        self.collision_mask_image = pygame.image.load("img/wejscie weeia i parter_maska.png").convert()
-        self.collision_mask_image.set_colorkey((255, 255, 255))
-        self.collision_mask = pygame.mask.from_threshold(
-            self.collision_mask_image,
-            (0, 0, 0),
-            (50, 50, 50) #pol czarny pol nie bo cos sie buguje xdd
-        )
-        #mapa
+        self.game_map = map_config.create_main_map()
+        self.current_target_room = random.choice(self.game_map.target_rooms)
+        self.bg_image, self.collision_mask = self.game_map.load()
         self.MAP_WIDTH, self.MAP_HEIGHT = self.bg_image.get_size()
+
+        self.zoom = 2
+        self.scaled_bg = pygame.transform.smoothscale(self.bg_image, (int(self.MAP_WIDTH * self.zoom),
+                                                                      int(self.MAP_HEIGHT * self.zoom)))
+
         self.WIDTH = WIDTH
         self.HEIGHT = HEIGHT
-        self.screen = pygame.display.set_mode((self.WIDTH, self.HEIGHT))
+        self.screen = pygame.display.set_mode((self.WIDTH, self.HEIGHT), pygame.HWSURFACE | pygame.DOUBLEBUF)
         pygame.display.set_caption("Tour de Weeia")
 
         self.clock = pygame.time.Clock()
         self.running = True
         self.camera_offset = pygame.Vector2(0, 0)
         self.all_sprites = pygame.sprite.Group()
-        #zoom
-        self.zoom = 2
+        self.player = None  # Zeby pozbyc sie Unresolved reference
+        self.debug_mode = True  # DO TESTOW POTEM ZMIENIC NA FALSE LUB NONE!! (POKAZUJE STREFY PRZEJSC, STREFY SAL ORAZ FPSY)
+        if self.debug_mode:
+            self.printed_destination = False
+            self.printed_arrived = False
 
         #game logic
         self.player1=Player(0,0,CONTROL_TYPE_WSAD)#spawnpointy losowac
@@ -74,21 +80,29 @@ class Game:
 
         self.camera_offset.x = self.player1.rect.centerx - self.WIDTH // 2
         self.camera_offset.y = self.player1.rect.centery - self.HEIGHT // 2
+        
+        for zone in self.game_map.transition_zones:
+            if zone.rect.colliderect(self.player.rect):
+                if self.debug_mode:
+                    print(f"[PRZEJSCIE TEST] {zone.name} -> {zone.target_position}")
+                self.player.rect.topleft = zone.target_position
+                break
+        if self.debug_mode:
+            if self.printed_destination is False:
+                print(f"WYLOSOWANA SALA: {self.current_target_room.name}")
+                self.printed_destination = True
+            if self.printed_arrived is False:
+                if self.current_target_room.rect.colliderect(self.player.rect):
+                    print(f"TRAFILES DO SALI: {self.current_target_room.name}")
+                    self.printed_arrived = True
 
-        self.race.update()
+                    
+         self.race.update()
+        
 
     def draw(self):
         self.screen.fill((255, 255, 255))
-
-        scaled_bg = pygame.transform.smoothscale(
-            self.bg_image,
-            (int(self.MAP_WIDTH * self.zoom), int(self.MAP_HEIGHT * self.zoom))
-        )
-
-        player_center = self.player1.rect.center
-        self.camera_offset.x = player_center[0] * self.zoom - self.WIDTH // 2
-        self.camera_offset.y = player_center[1] * self.zoom - self.HEIGHT // 2
-        self.screen.blit(scaled_bg, (-self.camera_offset.x, -self.camera_offset.y))
+        self.screen.blit(self.scaled_bg, (-self.camera_offset.x, -self.camera_offset.y))
 
         for sprite in self.all_sprites:
             scaled_pos = pygame.Vector2(sprite.rect.topleft) * self.zoom - self.camera_offset
@@ -98,6 +112,27 @@ class Game:
             )
             self.screen.blit(scaled_img, scaled_pos)
 
+        if self.debug_mode:
+            for zone in self.game_map.transition_zones:
+                debug_rect = zone.rect.copy()
+                debug_rect.x *= self.zoom
+                debug_rect.y *= self.zoom
+                debug_rect.width *= self.zoom
+                debug_rect.height *= self.zoom
+                pygame.draw.rect(self.screen, (255, 0, 0), debug_rect.move(-self.camera_offset), 2)
+            for room in self.game_map.target_rooms:
+                debug_rect = room.rect.copy()
+                debug_rect.x *= self.zoom
+                debug_rect.y *= self.zoom
+                debug_rect.width *= self.zoom
+                debug_rect.height *= self.zoom
+                if room == self.current_target_room:
+                    pygame.draw.rect(self.screen, (0, 255, 0), debug_rect.move(-self.camera_offset), 2)
+                else:
+                    pygame.draw.rect(self.screen, (0, 0, 255), debug_rect.move(-self.camera_offset), 2)
+
+            pygame.display.set_caption(f"FPS: {self.clock.get_fps()}")
+
         pygame.display.flip()
 
     def intro_screen(self):
@@ -106,12 +141,17 @@ class Game:
         def start_game():
             nonlocal intro
             self.all_sprites = pygame.sprite.Group()
-            self.player1 = Player(150, 200, CONTROL_TYPE_WSAD)
-            self.player2 = Player(180, 200,CONTROL_TYPE_ARROWS)
+            spawn_x1, spawn_y1 = self.game_map.get_random_spawn_point()
+            spawn_x2, spawn_y2 = self.game_map.get_random_spawn_point()
+
+            self.player1 = Player(spawn_x1, spawn_y1, CONTROL_TYPE_WSAD)
+            self.player2 = Player(spawn_x2, spawn_y2,CONTROL_TYPE_ARROWS)
             self.all_sprites.add(self.player1)
             self.all_sprites.add(self.player2)
             goal_rect = pygame.Rect(200, 220,40,40)  # miejsce do którego trzeba dotrzeć
             self.race = RaceManager(self.player1, self.player2, goal_rect)
+
+
             intro = False
 
         def open_settings():

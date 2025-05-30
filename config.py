@@ -5,7 +5,7 @@ FPS = 60
 PLAYER_SPEED = 3
 CONTROL_TYPE_WSAD = 1
 CONTROL_TYPE_ARROWS = 2
-
+PLAYER_SPEED = 5 #na potrzebe debuga, pozniej zmienic na 3
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
 BORDEAUX = (128, 0, 32)
