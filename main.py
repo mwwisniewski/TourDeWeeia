@@ -39,9 +39,6 @@ class Game:
         self.player2=Player(0,0,CONTROL_TYPE_ARROWS)
         #self.all_sprites.add(self.player1) dorobic sprite
         #self.all_sprites.add(self.player2)
-        goal_rect = pygame.Rect(0,0,0,0)  # miejsce do którego trzeba dotrzeć
-        self.race = RaceManager(self.player1, self.player2, goal_rect)
-        self.race.start_round()
 
 
 
@@ -50,6 +47,8 @@ class Game:
             self.handle_events()
             self.update()
             self.draw()
+            if not self.race.round_active and not self.race.game_over:
+                self.race.start_round()
             self.clock.tick(FPS)
 
     def handle_events(self):
@@ -59,17 +58,18 @@ class Game:
 
     def update(self):
         keys = pygame.key.get_pressed()
-        self.player.update(keys, self.collision_mask)
-        self.camera_offset.x = self.player.rect.centerx - self.WIDTH // 2
-        self.camera_offset.y = self.player.rect.centery - self.HEIGHT // 2
+        self.player1.update(keys, self.collision_mask)
+        self.camera_offset.x = self.player1.rect.centerx - self.WIDTH // 2
+        self.camera_offset.y = self.player1.rect.centery - self.HEIGHT // 2
         ########
+        self.player2.update(keys, self.collision_mask)
+        self.camera_offset.x = self.player2.rect.centerx - self.WIDTH // 2
+        self.camera_offset.y = self.player2.rect.centery - self.HEIGHT // 2
         keys = pygame.key.get_pressed()
         # Gracz 1: W, S, A, D
-        self.player1.update(keys, self.collision_mask,
-                            up=pygame.K_w,down=pygame.K_s, left=pygame.K_a,right=pygame.K_d)
+        self.player1.update(keys, self.collision_mask)
         # Gracz 2: strzałki
-        self.player2.update(keys, self.collision_mask,
-                            up=pygame.K_UP, down=pygame.K_DOWN, left=pygame.K_LEFT,right=pygame.K_RIGHT)
+        self.player2.update(keys, self.collision_mask)
 
 
         self.camera_offset.x = self.player1.rect.centerx - self.WIDTH // 2
@@ -85,7 +85,7 @@ class Game:
             (int(self.MAP_WIDTH * self.zoom), int(self.MAP_HEIGHT * self.zoom))
         )
 
-        player_center = self.player.rect.center
+        player_center = self.player1.rect.center
         self.camera_offset.x = player_center[0] * self.zoom - self.WIDTH // 2
         self.camera_offset.y = player_center[1] * self.zoom - self.HEIGHT // 2
         self.screen.blit(scaled_bg, (-self.camera_offset.x, -self.camera_offset.y))
@@ -106,8 +106,12 @@ class Game:
         def start_game():
             nonlocal intro
             self.all_sprites = pygame.sprite.Group()
-            self.player = Player(120, 100)
-            self.all_sprites.add(self.player)
+            self.player1 = Player(150, 200, CONTROL_TYPE_WSAD)
+            self.player2 = Player(180, 200,CONTROL_TYPE_ARROWS)
+            self.all_sprites.add(self.player1)
+            self.all_sprites.add(self.player2)
+            goal_rect = pygame.Rect(200, 220,40,40)  # miejsce do którego trzeba dotrzeć
+            self.race = RaceManager(self.player1, self.player2, goal_rect)
             intro = False
 
         def open_settings():

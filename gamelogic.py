@@ -18,20 +18,25 @@ class RaceManager:
 
         self.round_index = 0
         self.round_active = False
+        self.game_over = False
 
     def start_round(self):
         print(f"▶️ Runda {self.round_index + 1}!") #freeze obydwu graczy
         self.player1.freeze(1000)
         self.player2.freeze(1000)
+        pygame.time.wait(1000)
         print("3!")
         self.player1.freeze(1000)
         self.player2.freeze(1000)
+        pygame.time.wait(1000)
         print("2!")
         self.player1.freeze(1000)
         self.player2.freeze(1000)
+        pygame.time.wait(1000)
         print("1!")
         self.player1.freeze(1000)
         self.player2.freeze(1000)
+        pygame.time.wait(1000)
         print("START!")
         self.globaltimer = pygame.time.get_ticks()
         self.round_active = True
@@ -79,6 +84,7 @@ class RaceManager:
             self.start_round()
 
     def end_match(self):
+        self.game_over = True
         print("🎉 Koniec gry!")
         print(f"Gracz 1: {self.player1points} pkt"
               f"/tCzasy: "
