@@ -41,7 +41,7 @@ class Player(pygame.sprite.Sprite):
                     filename = f"{self.sprite_folder}/{state}_{direction}_{i}.png"
                     if os.path.isfile(filename):
                         img = pygame.image.load(filename).convert_alpha()
-                        img = pygame.transform.scale(img, (28, 28))  # dopasuj rozmiar
+                        img = pygame.transform.scale(img, (35, 35)) # rozmiar sprite'a
                         frames.append(img)
                 self.sprites[f"{state}_{direction}"] = frames
 
