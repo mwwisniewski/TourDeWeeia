@@ -115,7 +115,7 @@ def create_main_map():
     # IMSI: (140, 3200), (1100, 2250)
     # Parter dlugi korytarz: (2940, 3150)
     # Pietra sieci: (7630, 200), (6490, 580), (5730, 560)
-    spawn_list = [(1950, 275), (1900, 400), (3330, 785), (1425, 180), (1020, 1475), (1020, 1320), (1350, 1415),
-                  (140, 3200), (1100, 2250), (2940, 3150), (7630, 200), (6490, 580), (5730, 560)]
+    spawn_list = [(1950, 275), (1890, 375), (3330, 785), (1425, 180), (1020, 1475), (1020, 1320), (1350, 1415),
+                  (140, 3200), (1100, 2200), (2940, 3150), (7630, 200), (6490, 580), (5730, 560)]
     return Map("img/mapa.png", "img/mapa_maska_test.png", spawn_list, transition_zones=transitions,
                target_rooms=rooms)  # MAPA_MASKA_TEST do usuniecia i podmienienia na MAPA_MASKA jak zostanie dodana do main brancha
