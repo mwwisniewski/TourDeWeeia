@@ -6,6 +6,7 @@ from sprites import *
 from config import *
 from menu import *
 from gamelogic import RaceManager
+from menu import character_selection_screen
 
 
 class Game:
@@ -18,7 +19,7 @@ class Game:
 
         self.game_map = map_config.create_main_map()
         self.current_target_room = None
-        self.is_current_target_room= False
+        self.is_current_target_room = False
         self.bg_image, self.collision_mask = self.game_map.load()
         self.MAP_WIDTH, self.MAP_HEIGHT = self.bg_image.get_size()
 
@@ -41,9 +42,8 @@ class Game:
         self.printed_destination = True
         if self.debug_mode:
             self.printed_arrived = False
-        #self.all_sprites.add(self.player1) dorobic sprite
-        #self.all_sprites.add(self.player2)
-
+        # self.all_sprites.add(self.player1) dorobic sprite
+        # self.all_sprites.add(self.player2)
 
     def intro_screen(self):
         intro = True
@@ -51,16 +51,18 @@ class Game:
         def start_game():
             nonlocal intro
             self.all_sprites = pygame.sprite.Group()
+
+            selected_p1, selected_p2 = character_selection_screen(self.screen, self.WIDTH, self.clock)
+
             spawn_x1, spawn_y1 = self.game_map.get_random_spawn_point()
             spawn_x2, spawn_y2 = self.game_map.get_random_spawn_point()
             self.current_target_room = random.choice(self.game_map.target_rooms)
             self.is_current_target_room = True
-            self.player1 = Player(spawn_x1, spawn_y1, CONTROL_TYPE_WSAD,RED)
-            self.player2 = Player(spawn_x1, spawn_y1,CONTROL_TYPE_ARROWS,GREEN)
+            self.player1 = Player(spawn_x1, spawn_y1, CONTROL_TYPE_WSAD, selected_p1)
+            self.player2 = Player(spawn_x1, spawn_y1, CONTROL_TYPE_ARROWS, selected_p2)
             self.all_sprites.add(self.player1)
             self.all_sprites.add(self.player2)
             self.race = RaceManager(self.player1, self.player2)
-
 
             intro = False
 
@@ -131,10 +133,9 @@ class Game:
         # Gracz 2: strzałki
         self.player2.update(keys, self.collision_mask)
 
-
         self.camera_offset.x = self.player1.rect.centerx - self.WIDTH // 2
         self.camera_offset.y = self.player1.rect.centery - self.HEIGHT // 2
-        
+
         for zone in self.game_map.transition_zones:
             if zone.rect.colliderect(self.player1.rect):
                 if self.debug_mode:
@@ -159,9 +160,7 @@ class Game:
                     print(f"TRAFILES DO SALI: {self.current_target_room.name}")
                     self.printed_arrived = True
 
-                    
         self.race.update()
-        
 
     def draw(self):
         self.screen.fill((255, 255, 255))
@@ -186,7 +185,7 @@ class Game:
                 debug_rect.y *= self.zoom
                 debug_rect.width *= self.zoom
                 debug_rect.height *= self.zoom
-                pygame.draw.rect(self.screen, (255, 0, 0), debug_rect.move(-self.camera_offset), 2)
+                pygame.draw.rect(self.screen, RED, debug_rect.move(-self.camera_offset), 2)
             for room in self.game_map.target_rooms:
                 debug_rect = room.rect.copy()
                 debug_rect.x *= self.zoom
@@ -194,15 +193,13 @@ class Game:
                 debug_rect.width *= self.zoom
                 debug_rect.height *= self.zoom
                 if room == self.current_target_room:
-                    pygame.draw.rect(self.screen, (0, 255, 0), debug_rect.move(-self.camera_offset), 2)
+                    pygame.draw.rect(self.screen, GREEN, debug_rect.move(-self.camera_offset), 2)
                 else:
-                    pygame.draw.rect(self.screen, (0, 0, 255), debug_rect.move(-self.camera_offset), 2)
+                    pygame.draw.rect(self.screen, BLUE, debug_rect.move(-self.camera_offset), 2)
 
             pygame.display.set_caption(f"FPS: {self.clock.get_fps()}")
 
         pygame.display.flip()
-
-
 
 
 if __name__ == "__main__":
