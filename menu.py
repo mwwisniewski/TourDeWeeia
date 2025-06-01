@@ -13,16 +13,20 @@ class Button:
         self.font = pygame.font.SysFont("arial", font_size)
         self.text_render = self.font.render(text, True, BLACK)
         self.text_pos = self.text_render.get_rect(center=self.rect.center)
+        self.active = True
 
     def draw(self, screen):
         mouse_pos = pygame.mouse.get_pos()
-        color = self.hover_color if self.rect.collidepoint(mouse_pos) else self.color
+        if not self.active:
+            color = (150, 150, 150)
+        else:
+            color = self.hover_color if self.rect.collidepoint(mouse_pos) else self.color
         pygame.draw.rect(screen, color, self.rect)
         pygame.draw.rect(screen, BLACK, self.rect, 2)
         screen.blit(self.text_render, self.text_pos)
 
     def handle_event(self, event):
-        if event.type == pygame.MOUSEBUTTONDOWN and self.rect.collidepoint(event.pos):
+        if self.active and event.type == pygame.MOUSEBUTTONDOWN and self.rect.collidepoint(event.pos):
             self.callback()
 
 
@@ -30,7 +34,7 @@ def character_selection_screen(screen, width, clock):
     selection_done = False
     selected_p1 = None
     selected_p2 = None
-    # character_options = [RED, GREEN, BLUE, YELLOW] # narazie kolorowe kwadraty, sprite'y potem
+
     character_paths = [
         "img/sprites/sprite1",
         "img/sprites/sprite2",
@@ -40,19 +44,20 @@ def character_selection_screen(screen, width, clock):
     character_options = []
     for path in character_paths:
         img = pygame.image.load(f"{path}/idle_down_0.png").convert_alpha()
-        img = pygame.transform.scale(img, (50, 50))  # dopasuj rozmiar do poprzednich kwadratów
-        character_options.append((path, img))  # tuple: (ścieżka, obrazek)
-    font = pygame.font.SysFont("arial", 24)
+        img = pygame.transform.scale(img, (50, 50))
+        character_options.append((path, img))  # (ścieżka, obrazek)
 
+    font = pygame.font.SysFont("arial", 24)
     p1_index = 0
     p2_index = 1
+
+    play_button = Button("GRAJ", width // 2 - 75, 450, 150, 50, lambda: None, font_size=28)
 
     def draw_selection():
         screen.fill(WHITE)
 
-        # Nagłówki
-        title_p1 = font.render("Gracz 1 wybiera ↑/↓ i ENTER", True, BLUE)
-        title_p2 = font.render("Gracz 2 wybiera W/S i SPACJA", True, RED)
+        title_p1 = font.render("Gracz 1 wybiera W/S i SPACJA", True, BLUE)
+        title_p2 = font.render("Gracz 2 wybiera ↑/↓ i ENTER", True, RED)
         screen.blit(title_p1, (100, 50))
         screen.blit(title_p2, (width - title_p2.get_width() - 100, 50))
 
@@ -92,6 +97,9 @@ def character_selection_screen(screen, width, clock):
                 pygame.draw.line(screen, RED, rect_p2.topleft, rect_p2.bottomright, 3)
                 pygame.draw.line(screen, RED, rect_p2.topright, rect_p2.bottomleft, 3)
 
+        both_selected = selected_p1 and selected_p2
+        play_button.active = both_selected
+        play_button.draw(screen)
         pygame.display.flip()
 
     while not selection_done:
@@ -100,29 +108,38 @@ def character_selection_screen(screen, width, clock):
             if event.type == pygame.QUIT:
                 pygame.quit()
                 sys.exit()
-            elif event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_UP:
-                    p1_index = (p1_index - 1) % len(character_options)
-                elif event.key == pygame.K_DOWN:
-                    p1_index = (p1_index + 1) % len(character_options)
-                elif event.key == pygame.K_RETURN:
-                    if selected_p1 == character_options[p1_index][0]:
-                        selected_p1 = None
-                    elif character_options[p1_index][0] != selected_p2:
-                        selected_p1 = character_options[p1_index][0]
-                elif event.key == pygame.K_w:
-                    p2_index = (p2_index - 1) % len(character_options)
-                elif event.key == pygame.K_s:
-                    p2_index = (p2_index + 1) % len(character_options)
-                elif event.key == pygame.K_SPACE:
-                    if selected_p2 == character_options[p2_index][0]:
-                        selected_p2 = None
-                    elif character_options[p2_index][0] != selected_p1:
-                        selected_p2 = character_options[p2_index][0]
 
-        if selected_p1 and selected_p2:
-            selection_done = True
+            if event.type == pygame.KEYDOWN:
+                # Gracz 1 — WSAD + SPACJA
+                if event.key == pygame.K_w:
+                    p1_index = (p1_index - 1) % len(character_options)
+                elif event.key == pygame.K_s:
+                    p1_index = (p1_index + 1) % len(character_options)
+                elif event.key == pygame.K_SPACE:
+                    selected_path = character_options[p1_index][0]
+                    if selected_p1 == selected_path:
+                        selected_p1 = None
+                    elif selected_path != selected_p2:
+                        selected_p1 = selected_path
+
+                # Gracz 2 — STRZAŁKI + ENTER
+                elif event.key == pygame.K_UP:
+                    p2_index = (p2_index - 1) % len(character_options)
+                elif event.key == pygame.K_DOWN:
+                    p2_index = (p2_index + 1) % len(character_options)
+                elif event.key == pygame.K_RETURN:
+                    selected_path = character_options[p2_index][0]
+                    if selected_p2 == selected_path:
+                        selected_p2 = None
+                    elif selected_path != selected_p1:
+                        selected_p2 = selected_path
+
+            if selected_p1 and selected_p2:
+                play_button.handle_event(event)
+                if event.type == pygame.MOUSEBUTTONDOWN and play_button.rect.collidepoint(event.pos):
+                    selection_done = True
 
         clock.tick(FPS)
 
     return selected_p1, selected_p2
+
