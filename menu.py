@@ -34,39 +34,49 @@ def character_selection_screen(screen, width, clock):
     selection_done = False
     selected_p1 = None
     selected_p2 = None
-    character_options = [RED, GREEN, BLUE, YELLOW]  # narazie kolorowe kwadraty, sprite'y potem
-    font = pygame.font.SysFont("arial", 24)
 
+    character_paths = [
+        "img/sprites/sprite1",
+        "img/sprites/sprite2",
+        "img/sprites/sprite3",
+        "img/sprites/sprite4",
+    ]
+    character_options = []
+    for path in character_paths:
+        img = pygame.image.load(f"{path}/idle_down_0.png").convert_alpha()
+        img = pygame.transform.scale(img, (50, 50))
+        character_options.append((path, img))  # (ścieżka, obrazek)
+
+    font = pygame.font.SysFont("arial", 24)
     p1_index = 0
     p2_index = 1
 
-    button_font = pygame.font.SysFont("arial", 28)
     play_button = Button("GRAJ", width // 2 - 75, 450, 150, 50, lambda: None, font_size=28)
-    play_clicked = False
 
     def draw_selection():
         screen.fill(WHITE)
 
-        # Nagłówki
         title_p1 = font.render("Gracz 1 wybiera W/S i SPACJA", True, BLUE)
         title_p2 = font.render("Gracz 2 wybiera ↑/↓ i ENTER", True, RED)
         screen.blit(title_p1, (100, 50))
         screen.blit(title_p2, (width - title_p2.get_width() - 100, 50))
 
-        for idx, color in enumerate(character_options):
-            is_taken_by_p1 = selected_p1 == color
-            is_taken_by_p2 = selected_p2 == color
-
-            # Wyszarz jeśli wybrane
-            display_color = tuple(int(c * 0.3) for c in color) if (is_taken_by_p1 or is_taken_by_p2) else color
+        for idx, (char_path, char_img) in enumerate(character_options):
+            is_taken_by_p1 = selected_p1 == char_path
+            is_taken_by_p2 = selected_p2 == char_path
 
             rect_p1 = pygame.Rect(300, 150 + idx * 60, 50, 50)
             rect_p2 = pygame.Rect(650, 150 + idx * 60, 50, 50)
 
-            pygame.draw.rect(screen, display_color, rect_p1)
-            pygame.draw.rect(screen, display_color, rect_p2)
+            img_p1 = char_img.copy()
+            img_p2 = char_img.copy()
+            if is_taken_by_p1 or is_taken_by_p2:
+                img_p1.set_alpha(100)
+                img_p2.set_alpha(100)
 
-            # Obwódki zaznaczenia
+            screen.blit(img_p1, rect_p1)
+            screen.blit(img_p2, rect_p2)
+
             pygame.draw.rect(screen, BLACK, rect_p1, 2)
             pygame.draw.rect(screen, BLACK, rect_p2, 2)
 
@@ -90,7 +100,6 @@ def character_selection_screen(screen, width, clock):
         both_selected = selected_p1 and selected_p2
         play_button.active = both_selected
         play_button.draw(screen)
-
         pygame.display.flip()
 
     while not selection_done:
@@ -107,11 +116,11 @@ def character_selection_screen(screen, width, clock):
                 elif event.key == pygame.K_s:
                     p1_index = (p1_index + 1) % len(character_options)
                 elif event.key == pygame.K_SPACE:
-                    selected_color = character_options[p1_index]
-                    if selected_p1 == selected_color:
+                    selected_path = character_options[p1_index][0]
+                    if selected_p1 == selected_path:
                         selected_p1 = None
-                    elif selected_color != selected_p2:
-                        selected_p1 = selected_color
+                    elif selected_path != selected_p2:
+                        selected_p1 = selected_path
 
                 # Gracz 2 — STRZAŁKI + ENTER
                 elif event.key == pygame.K_UP:
@@ -119,20 +128,18 @@ def character_selection_screen(screen, width, clock):
                 elif event.key == pygame.K_DOWN:
                     p2_index = (p2_index + 1) % len(character_options)
                 elif event.key == pygame.K_RETURN:
-                    selected_color = character_options[p2_index]
-                    if selected_p2 == selected_color:
+                    selected_path = character_options[p2_index][0]
+                    if selected_p2 == selected_path:
                         selected_p2 = None
-                    elif selected_color != selected_p1:
-                        selected_p2 = selected_color
+                    elif selected_path != selected_p1:
+                        selected_p2 = selected_path
 
             if selected_p1 and selected_p2:
                 play_button.handle_event(event)
                 if event.type == pygame.MOUSEBUTTONDOWN and play_button.rect.collidepoint(event.pos):
-                    play_clicked = True
                     selection_done = True
-
-        pygame.display.flip()
 
         clock.tick(FPS)
 
     return selected_p1, selected_p2
+
