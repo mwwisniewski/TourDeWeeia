@@ -30,7 +30,18 @@ def character_selection_screen(screen, width, clock):
     selection_done = False
     selected_p1 = None
     selected_p2 = None
-    character_options = [RED, GREEN, BLUE, YELLOW] # narazie kolorowe kwadraty, sprite'y potem
+    # character_options = [RED, GREEN, BLUE, YELLOW] # narazie kolorowe kwadraty, sprite'y potem
+    character_paths = [
+        "img/sprites/sprite1",
+        "img/sprites/sprite2",
+        "img/sprites/sprite3",
+        "img/sprites/sprite4",
+    ]
+    character_options = []
+    for path in character_paths:
+        img = pygame.image.load(f"{path}/idle_down_0.png").convert_alpha()
+        img = pygame.transform.scale(img, (50, 50))  # dopasuj rozmiar do poprzednich kwadratów
+        character_options.append((path, img))  # tuple: (ścieżka, obrazek)
     font = pygame.font.SysFont("arial", 24)
 
     p1_index = 0
@@ -45,20 +56,22 @@ def character_selection_screen(screen, width, clock):
         screen.blit(title_p1, (100, 50))
         screen.blit(title_p2, (width - title_p2.get_width() - 100, 50))
 
-        for idx, color in enumerate(character_options):
-            is_taken_by_p1 = selected_p1 == color
-            is_taken_by_p2 = selected_p2 == color
-
-            # Wyszarz jeśli wybrane
-            display_color = tuple(int(c * 0.3) for c in color) if (is_taken_by_p1 or is_taken_by_p2) else color
+        for idx, (char_path, char_img) in enumerate(character_options):
+            is_taken_by_p1 = selected_p1 == char_path
+            is_taken_by_p2 = selected_p2 == char_path
 
             rect_p1 = pygame.Rect(300, 150 + idx * 60, 50, 50)
             rect_p2 = pygame.Rect(650, 150 + idx * 60, 50, 50)
 
-            pygame.draw.rect(screen, display_color, rect_p1)
-            pygame.draw.rect(screen, display_color, rect_p2)
+            img_p1 = char_img.copy()
+            img_p2 = char_img.copy()
+            if is_taken_by_p1 or is_taken_by_p2:
+                img_p1.set_alpha(100)
+                img_p2.set_alpha(100)
 
-            # Obwódki zaznaczenia
+            screen.blit(img_p1, rect_p1)
+            screen.blit(img_p2, rect_p2)
+
             pygame.draw.rect(screen, BLACK, rect_p1, 2)
             pygame.draw.rect(screen, BLACK, rect_p2, 2)
 
@@ -93,19 +106,19 @@ def character_selection_screen(screen, width, clock):
                 elif event.key == pygame.K_DOWN:
                     p1_index = (p1_index + 1) % len(character_options)
                 elif event.key == pygame.K_RETURN:
-                    if selected_p1 == character_options[p1_index]:
+                    if selected_p1 == character_options[p1_index][0]:
                         selected_p1 = None
-                    elif character_options[p1_index] != selected_p2:
-                        selected_p1 = character_options[p1_index]
+                    elif character_options[p1_index][0] != selected_p2:
+                        selected_p1 = character_options[p1_index][0]
                 elif event.key == pygame.K_w:
                     p2_index = (p2_index - 1) % len(character_options)
                 elif event.key == pygame.K_s:
                     p2_index = (p2_index + 1) % len(character_options)
                 elif event.key == pygame.K_SPACE:
-                    if selected_p2 == character_options[p2_index]:
+                    if selected_p2 == character_options[p2_index][0]:
                         selected_p2 = None
-                    elif character_options[p2_index] != selected_p1:
-                        selected_p2 = character_options[p2_index]
+                    elif character_options[p2_index][0] != selected_p1:
+                        selected_p2 = character_options[p2_index][0]
 
         if selected_p1 and selected_p2:
             selection_done = True

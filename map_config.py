@@ -106,7 +106,7 @@ def create_main_map():
         # Parter dlugi korytarz:
         TargetRoom("E5", pygame.Rect(2390, 2290, 50, 25)),
         # Sieci pietro 1:
-        TargetRoom("Sala DT", pygame.Rect(4040,1020,25,80))
+        TargetRoom("Sala DT", pygame.Rect(4040, 1020, 25, 80))
         # Reszta sal zostanie dodana, gdy ktoś dowie się jakie tam są sale.
     ]
     # Zapisane koordynaty spawnow dla roznych pozimow:
@@ -117,4 +117,5 @@ def create_main_map():
     # Pietra sieci: (7630, 200), (6490, 580), (5730, 560)
     spawn_list = [(1950, 275), (1900, 400), (3330, 785), (1425, 180), (1020, 1475), (1020, 1320), (1350, 1415),
                   (140, 3200), (1100, 2250), (2940, 3150), (7630, 200), (6490, 580), (5730, 560)]
-    return Map("img/mapa.png", "img/mapa_maska_test.png", spawn_list, transition_zones=transitions, target_rooms=rooms) #MAPA_MASKA_TEST do usuniecia i podmienienia na MAPA_MASKA jak zostanie dodana do main brancha
+    return Map("img/mapa.png", "img/mapa_maska_test.png", spawn_list, transition_zones=transitions,
+               target_rooms=rooms)  # MAPA_MASKA_TEST do usuniecia i podmienienia na MAPA_MASKA jak zostanie dodana do main brancha
