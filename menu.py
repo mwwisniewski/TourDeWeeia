@@ -36,6 +36,10 @@ def character_selection_screen(screen, width, clock):
     p1_index = 0
     p2_index = 1
 
+    button_font = pygame.font.SysFont("arial", 28)
+    play_button = Button("GRAJ", width // 2 - 75, 450, 150, 50, lambda: None, font_size=28)
+    play_clicked = False
+
     def draw_selection():
         screen.fill(WHITE)
 
@@ -79,6 +83,9 @@ def character_selection_screen(screen, width, clock):
                 pygame.draw.line(screen, RED, rect_p2.topleft, rect_p2.bottomright, 3)
                 pygame.draw.line(screen, RED, rect_p2.topright, rect_p2.bottomleft, 3)
 
+        if selected_p1 and selected_p2:
+            play_button.draw(screen)
+
         pygame.display.flip()
 
     while not selection_done:
@@ -87,6 +94,13 @@ def character_selection_screen(screen, width, clock):
             if event.type == pygame.QUIT:
                 pygame.quit()
                 sys.exit()
+
+            if selected_p1 and selected_p2:
+                play_button.handle_event(event)
+                if event.type == pygame.MOUSEBUTTONDOWN and play_button.rect.collidepoint(event.pos):
+                    play_clicked = True
+                    selection_done = True
+
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_UP:
                     p1_index = (p1_index - 1) % len(character_options)
@@ -108,7 +122,8 @@ def character_selection_screen(screen, width, clock):
                         selected_p2 = character_options[p2_index]
 
         if selected_p1 and selected_p2:
-            selection_done = True
+            play_button.draw(screen)
+            pygame.display.flip()
 
         clock.tick(FPS)
 
