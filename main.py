@@ -1,6 +1,7 @@
 import random
 import sys
 import pygame
+import os
 import map_config
 from sprites import *
 from config import *
@@ -11,6 +12,7 @@ from menu import character_selection_screen
 
 class Game:
     def __init__(self):
+        os.environ['SDL_VIDEO_CENTERED'] = '1'
         pygame.init()
         pygame.display.set_mode((1, 1))
 
@@ -34,7 +36,10 @@ class Game:
 
         self.clock = pygame.time.Clock()
         self.running = True
-        self.camera_offset = pygame.Vector2(0, 0)
+        self.camera_left_offset = pygame.Vector2(0, 0)
+        self.camera_right_offset = pygame.Vector2(0, 0)
+        self.left_view = pygame.Surface((self.WIDTH // 2, self.HEIGHT))
+        self.right_view = pygame.Surface((self.WIDTH // 2, self.HEIGHT))
         self.all_sprites = pygame.sprite.Group()
         self.player1 = None  # Zeby pozbyc sie Unresolved reference
         self.player2 = None
@@ -42,8 +47,10 @@ class Game:
         self.printed_destination = True
         if self.debug_mode:
             self.printed_arrived = False
-        # self.all_sprites.add(self.player1) dorobic sprite
-        # self.all_sprites.add(self.player2)
+
+
+        self.left_view = pygame.Surface((self.WIDTH // 2, self.HEIGHT))
+        self.right_view = pygame.Surface((self.WIDTH // 2, self.HEIGHT))
 
     def intro_screen(self):
         intro = True
@@ -59,7 +66,7 @@ class Game:
             self.current_target_room = random.choice(self.game_map.target_rooms)
             self.is_current_target_room = True
             self.player1 = Player(spawn_x1, spawn_y1, CONTROL_TYPE_WSAD, selected_p1)
-            self.player2 = Player(spawn_x1, spawn_y1, CONTROL_TYPE_ARROWS, selected_p2)
+            self.player2 = Player(spawn_x2, spawn_y2, CONTROL_TYPE_ARROWS, selected_p2)
             self.all_sprites.add(self.player1)
             self.all_sprites.add(self.player2)
             self.race = RaceManager(self.player1, self.player2)
@@ -114,7 +121,7 @@ class Game:
                     spawn_x1, spawn_y1 = self.game_map.get_random_spawn_point()
                     spawn_x2, spawn_y2 = self.game_map.get_random_spawn_point()
                     self.player1.random_spawn_point(spawn_x1, spawn_y1)
-                    self.player2.random_spawn_point(spawn_x1, spawn_y1)
+                    self.player2.random_spawn_point(spawn_x2, spawn_y2)
 
                 self.is_current_target_room = False
                 print(f"WYLOSOWANA SALA: {self.current_target_room.name}")
@@ -133,8 +140,10 @@ class Game:
         # Gracz 2: strzałki
         self.player2.update(keys, self.collision_mask)
 
-        self.camera_offset.x = self.player1.rect.centerx - self.WIDTH // 2
-        self.camera_offset.y = self.player1.rect.centery - self.HEIGHT // 2
+        self.camera_left_offset.x = self.player1.rect.centerx - self.WIDTH // 4
+        self.camera_left_offset.y = self.player1.rect.centery - self.HEIGHT // 2
+        self.camera_right_offset.x = self.player1.rect.centerx - self.WIDTH // 4
+        self.camera_right_offset.y = self.player1.rect.centery - self.HEIGHT // 2
 
         for zone in self.game_map.transition_zones:
             if zone.rect.colliderect(self.player1.rect):
@@ -163,20 +172,35 @@ class Game:
         self.race.update()
 
     def draw(self):
-        self.screen.fill((255, 255, 255))
+        self.left_view.fill((255, 255, 255))
+        self.right_view.fill((255, 255, 255))
 
-        player_center = self.player1.rect.center
-        self.camera_offset.x = player_center[0] * self.zoom - self.WIDTH // 2
-        self.camera_offset.y = player_center[1] * self.zoom - self.HEIGHT // 2
-        self.screen.blit(self.scaled_bg, (-self.camera_offset.x, -self.camera_offset.y))
+        player1_center = self.player1.rect.center
+        player2_center = self.player2.rect.center
+        self.camera_left_offset.x = player1_center[0] * self.zoom - self.WIDTH // 4
+        self.camera_left_offset.y = player1_center[1] * self.zoom - self.HEIGHT // 2
+        self.camera_right_offset.x = player2_center[0] * self.zoom - self.WIDTH // 4
+        self.camera_right_offset.y = player2_center[1] * self.zoom - self.HEIGHT // 2
+
+        self.left_view.blit(self.scaled_bg, (-self.camera_left_offset.x, -self.camera_left_offset.y))
+        self.right_view.blit(self.scaled_bg, (-self.camera_right_offset.x, -self.camera_right_offset.y))
+
 
         for sprite in self.all_sprites:
-            scaled_pos = pygame.Vector2(sprite.rect.topleft) * self.zoom - self.camera_offset
+            scaled_pos = pygame.Vector2(sprite.rect.topleft) * self.zoom - self.camera_left_offset
             scaled_img = pygame.transform.smoothscale(
                 sprite.image,
                 (int(sprite.rect.width * self.zoom), int(sprite.rect.height * self.zoom))
             )
-            self.screen.blit(scaled_img, scaled_pos)
+            self.left_view.blit(scaled_img, scaled_pos)
+
+        for sprite in self.all_sprites:
+            scaled_pos = pygame.Vector2(sprite.rect.topleft) * self.zoom - self.camera_right_offset
+            scaled_img = pygame.transform.smoothscale(
+                sprite.image,
+                (int(sprite.rect.width * self.zoom), int(sprite.rect.height * self.zoom))
+            )
+            self.right_view.blit(scaled_img, scaled_pos)
 
         if self.debug_mode:
             for zone in self.game_map.transition_zones:
@@ -185,7 +209,7 @@ class Game:
                 debug_rect.y *= self.zoom
                 debug_rect.width *= self.zoom
                 debug_rect.height *= self.zoom
-                pygame.draw.rect(self.screen, RED, debug_rect.move(-self.camera_offset), 2)
+                pygame.draw.rect(self.screen, RED, debug_rect.move(-self.camera_left_offset), 2)
             for room in self.game_map.target_rooms:
                 debug_rect = room.rect.copy()
                 debug_rect.x *= self.zoom
@@ -193,11 +217,15 @@ class Game:
                 debug_rect.width *= self.zoom
                 debug_rect.height *= self.zoom
                 if room == self.current_target_room:
-                    pygame.draw.rect(self.screen, GREEN, debug_rect.move(-self.camera_offset), 2)
+                    pygame.draw.rect(self.screen, GREEN, debug_rect.move(-self.camera_left_offset), 2)
                 else:
-                    pygame.draw.rect(self.screen, BLUE, debug_rect.move(-self.camera_offset), 2)
+                    pygame.draw.rect(self.screen, BLUE, debug_rect.move(-self.camera_left_offset), 2)
 
             pygame.display.set_caption(f"FPS: {self.clock.get_fps()}")
+
+        self.screen.blit(self.left_view, (0, 0))
+        self.screen.blit(self.right_view, (self.WIDTH // 2, 0))
+        pygame.draw.line(self.screen, (0, 0, 0), (self.WIDTH // 2, 0), (self.WIDTH // 2, self.HEIGHT), 2)
 
         pygame.display.flip()
 

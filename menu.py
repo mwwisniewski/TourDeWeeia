@@ -44,14 +44,27 @@ def character_selection_screen(screen, width, clock):
     character_options = []
     for path in character_paths:
         img = pygame.image.load(f"{path}/idle_down_0.png").convert_alpha()
-        img = pygame.transform.scale(img, (50, 50))
+        img = pygame.transform.scale(img, (50*ZOOM_CHARACTER_SCREEN_MULT, 50*ZOOM_CHARACTER_SCREEN_MULT))
         character_options.append((path, img))  # (ścieżka, obrazek)
 
-    font = pygame.font.SysFont("arial", 24)
+    font = pygame.font.SysFont("arial", int(24 * ZOOM_CHARACTER_SCREEN_MULT))
     p1_index = 0
     p2_index = 1
 
-    play_button = Button("GRAJ", width // 2 - 75, 450, 150, 50, lambda: None, font_size=28)
+    sprite_size = int(50 * ZOOM_CHARACTER_SCREEN_MULT)
+    spacing_y = int(80 * ZOOM_CHARACTER_SCREEN_MULT)
+
+    button_width = int(150 * ZOOM_CHARACTER_SCREEN_MULT)
+    button_height = int(50 * ZOOM_CHARACTER_SCREEN_MULT)
+    button_x = width // 2 - button_width // 2
+
+    num_characters = len(character_options)
+    bottom_of_selection = 150 + num_characters * spacing_y
+    space_after = 40
+    button_y = bottom_of_selection + space_after
+
+    play_button = Button("GRAJ", button_x, button_y, button_width, button_height, lambda: None,
+                         font_size=int(28 * ZOOM_CHARACTER_SCREEN_MULT))
 
     def draw_selection():
         screen.fill(WHITE)
@@ -65,8 +78,11 @@ def character_selection_screen(screen, width, clock):
             is_taken_by_p1 = selected_p1 == char_path
             is_taken_by_p2 = selected_p2 == char_path
 
-            rect_p1 = pygame.Rect(300, 150 + idx * 60, 50, 50)
-            rect_p2 = pygame.Rect(650, 150 + idx * 60, 50, 50)
+            left_x = width // 4 - sprite_size // 2
+            right_x = width * 3 // 4 - sprite_size // 2
+
+            rect_p1 = pygame.Rect(left_x, 150 + idx * spacing_y, sprite_size, sprite_size)
+            rect_p2 = pygame.Rect(right_x, 150 + idx * spacing_y, sprite_size, sprite_size)
 
             img_p1 = char_img.copy()
             img_p2 = char_img.copy()
