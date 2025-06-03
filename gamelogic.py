@@ -52,12 +52,12 @@ class RaceManager:
         if not self.player1_finished and self.goal_rect.colliderect(self.player1.rect):
             self.player1_finished = True
             self.player1times[self.round_index] = now - self.globaltimer
-            print(f"🏁 Gracz 1 dotarł w {self.player1times[self.round_index]} ms")
+            print(f"🏁 Gracz 1 dotarł w {self.player1times[self.round_index]/1000} s")
 
         if not self.player2_finished and self.goal_rect.colliderect(self.player2.rect):
             self.player2_finished = True
             self.player2times[self.round_index] = now - self.globaltimer
-            print(f"🏁 Gracz 2 dotarł w {self.player2times[self.round_index]} ms")
+            print(f"🏁 Gracz 2 dotarł w {self.player2times[self.round_index]/1000} s")
 
         if self.player1_finished and self.player2_finished:
             self.end_round()
@@ -86,14 +86,14 @@ class RaceManager:
         print("🎉 Koniec gry!")
         print(f"Gracz 1: {self.player1points} pkt\n"
               f"\tCzasy: \n"
-              f"runda 1: {self.player1times[0]} \n"
-              f"runda 2: {self.player1times[1]} \n"
-              f"runda 3: {self.player1times[2]} \n")
+              f"runda 1: {self.player1times[0]/1000} s\n"
+              f"runda 2: {self.player1times[1]/1000} s\n"
+              f"runda 3: {self.player1times[2]/1000} s\n")
         print(f"Gracz 2: {self.player2points} pkt\n"
               f"\tCzasy: \n"
-              f"runda 1: {self.player2times[0]} \n"
-              f"runda 2: {self.player2times[1]} \n"
-              f"runda 3: {self.player2times[2]} \n")
+              f"runda 1: {self.player2times[0]/1000} s\n"
+              f"runda 2: {self.player2times[1]/1000} s\n"
+              f"runda 3: {self.player2times[2]/1000} s\n")
 
         if self.player1points > self.player2points:
             print("🥇 Wygrywa Gracz 1!")
