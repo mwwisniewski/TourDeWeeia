@@ -41,17 +41,17 @@ def create_main_map():
         TransitionZone("Wejscie WEEIA -> Pierwsze pietro sieci (DT i Bistro)", pygame.Rect(2390, 110, 50, 80),
                        (4870, 370)),
         TransitionZone("Parter dlugi korytarz -> Wejscie WEEIA", pygame.Rect(3020, 1970, 170, 30), (3300, 1500)),
-        TransitionZone("Parter dlugi korytarz -> Pierwsze pietro #1", pygame.Rect(2725, 1965, 25, 90), (1040, 180)),
+        TransitionZone("Parter dlugi korytarz -> Pierwsze pietro #1", pygame.Rect(2725, 1965, 25, 90), (1075, 120)),
         TransitionZone("Parter dlugi korytarz -> Pierwsze pietro #2", pygame.Rect(2570, 2995, 100, 180), (840, 1150)),
         TransitionZone("Pierwsze pietro -> Wejscie WEEIA", pygame.Rect(40, 40, 185, 40), (2300, 1400)),
-        TransitionZone("Pierwsze pietro -> Parter dlugi korytarz #1", pygame.Rect(968, 135, 32, 90), (2795, 2015)),
+        TransitionZone("Pierwsze pietro -> Parter dlugi korytarz #1", pygame.Rect(968, 135, 32, 90), (2820, 2075)),
         TransitionZone("Pierwsze pietro -> Parter dlugi korytarz #2", pygame.Rect(616, 1065, 134, 175), (2770, 3045)),
         TransitionZone("Pierwsze pietro -> IMSI", pygame.Rect(1535, 685, 30, 40), (1510, 3400)),
         TransitionZone("IMSI -> Pierwsze pietro", pygame.Rect(1508, 3456, 50, 40), (1440, 705)),
         TransitionZone("Pierwsze pietro sieci (DT i Bistro) -> Wejscie WEEIA", pygame.Rect(4790, 260, 180, 70),
                        (2350, 150)),
         TransitionZone("Pierwsze pietro sieci (DT i Bistro) -> Drugie pietro sieci", pygame.Rect(4690, 40, 80, 180),
-                       (5810 , 370)),
+                       (5810, 370)),
         TransitionZone("Drugie pietro sieci -> Pierwsze pietro sieci (DT i Bistro)", pygame.Rect(5705, 260, 180, 80),
                        (4650, 135)),
         TransitionZone("Drugie pietro sieci -> Trzecie pietro sieci", pygame.Rect(5600, 40, 80, 180), (7135, 370)),
@@ -94,7 +94,7 @@ def create_main_map():
         TargetRoom("127", pygame.Rect(1567, 2932, 25, 50)),
         TargetRoom("128", pygame.Rect(1567, 3091, 25, 50)),
         TargetRoom("129", pygame.Rect(1567, 3252, 25, 50)),
-        # Wejscie WEEIA: (zmienic nazwy jak Piliszek sie dowie jakie to sale)
+        # Wejscie WEEIA:
         TargetRoom("Pokój wykładowców", pygame.Rect(2415, 365, 25, 50)),
         TargetRoom("E4", pygame.Rect(2415, 490, 25, 50)),
         TargetRoom("E3", pygame.Rect(2415, 590, 25, 50)),
@@ -105,9 +105,40 @@ def create_main_map():
         TargetRoom("E5", pygame.Rect(2540, 2575, 50, 25)),
         # Sieci pietro 1:
         TargetRoom("Sala DT", pygame.Rect(4375, 1005, 25, 80)),
-        # Reszta sal zostanie dodana, gdy ktoś dowie się jakie tam są sale.
         # Drugie pietro sieci (te laboratoria elektrotechniki)
-        TargetRoom("Laboratoria elektrotechniki", pygame.Rect(5320, 235, 25, 175))
+        TargetRoom("Laboratoria elektrotechniki", pygame.Rect(5320, 235, 25, 175)),
+        # Trzecie pietro sieci (IIS):
+        TargetRoom("301", pygame.Rect(6295,75,25,50)),
+        TargetRoom("302", pygame.Rect(6295,170,25,50)),
+        TargetRoom("303", pygame.Rect(6295,260,25,50)),
+        TargetRoom("304", pygame.Rect(6295,360,25,50)),
+        TargetRoom("305", pygame.Rect(6295,460,25,50)),
+        TargetRoom("306", pygame.Rect(6295,555,25,50)),
+        TargetRoom("307", pygame.Rect(6295,650,25,50)),
+        TargetRoom("308", pygame.Rect(6295,750,25,50)),
+        TargetRoom("309", pygame.Rect(6295,845,25,50)),
+        TargetRoom("310", pygame.Rect(6295,940,25,50)),
+        TargetRoom("311", pygame.Rect(6295,1035,25,50)),
+        TargetRoom("312", pygame.Rect(6295,1130,25,50)),
+        TargetRoom("313", pygame.Rect(6455,1130,25,50)),
+        TargetRoom("314", pygame.Rect(6455,1035,25,50)),
+        TargetRoom("315", pygame.Rect(6455,940,25,50)),
+        TargetRoom("316", pygame.Rect(6455,845,25,50)),
+        TargetRoom("317", pygame.Rect(6455,750,25,50)),
+        TargetRoom("318", pygame.Rect(6455,650,25,50)),
+        TargetRoom("319", pygame.Rect(6455,555,25,50)),
+        TargetRoom("320", pygame.Rect(6455,460,25,50)),
+        TargetRoom("321", pygame.Rect(6455,170,25,50)),
+        TargetRoom("322", pygame.Rect(6455,75,25,50)),
+        # Czwarte pietro sieci (Zakład teorii sterowania instytutu automatyki)
+        TargetRoom("401",pygame.Rect(7680,75,25,50)),
+        TargetRoom("402",pygame.Rect(7680,235,25,50)),
+        TargetRoom("403",pygame.Rect(7680,490,25,50)),
+        TargetRoom("404",pygame.Rect(7680,680,25,50)),
+        TargetRoom("405",pygame.Rect(7680,875,25,50)),
+        TargetRoom("406",pygame.Rect(7680,1035,25,50)),
+        TargetRoom("407",pygame.Rect(7840,875,25,50)),
+        TargetRoom("408",pygame.Rect(7840,490,25,50))
     ]
     # Zapisane koordynaty spawnow dla roznych pozimow:
     # Wejscie WEEIA: (2140, 275), (2060, 360), (3470, 780)

@@ -48,7 +48,6 @@ class Game:
         if self.debug_mode:
             self.printed_arrived = False
 
-
         self.left_view = pygame.Surface((self.WIDTH // 2, self.HEIGHT))
         self.right_view = pygame.Surface((self.WIDTH // 2, self.HEIGHT))
 
@@ -185,7 +184,6 @@ class Game:
         self.left_view.blit(self.scaled_bg, (-self.camera_left_offset.x, -self.camera_left_offset.y))
         self.right_view.blit(self.scaled_bg, (-self.camera_right_offset.x, -self.camera_right_offset.y))
 
-
         for sprite in self.all_sprites:
             scaled_pos = pygame.Vector2(sprite.rect.topleft) * self.zoom - self.camera_left_offset
             scaled_img = pygame.transform.smoothscale(
@@ -201,6 +199,10 @@ class Game:
                 (int(sprite.rect.width * self.zoom), int(sprite.rect.height * self.zoom))
             )
             self.right_view.blit(scaled_img, scaled_pos)
+
+        self.screen.blit(self.left_view, (0, 0))
+        self.screen.blit(self.right_view, (self.WIDTH // 2, 0))
+        pygame.draw.line(self.screen, (0, 0, 0), (self.WIDTH // 2, 0), (self.WIDTH // 2, self.HEIGHT), 2)
 
         if self.debug_mode:
             for zone in self.game_map.transition_zones:
@@ -222,10 +224,6 @@ class Game:
                     pygame.draw.rect(self.screen, BLUE, debug_rect.move(-self.camera_left_offset), 2)
 
             pygame.display.set_caption(f"FPS: {self.clock.get_fps()}")
-
-        self.screen.blit(self.left_view, (0, 0))
-        self.screen.blit(self.right_view, (self.WIDTH // 2, 0))
-        pygame.draw.line(self.screen, (0, 0, 0), (self.WIDTH // 2, 0), (self.WIDTH // 2, self.HEIGHT), 2)
 
         pygame.display.flip()
 
