@@ -8,6 +8,7 @@ from config import *
 from menu import *
 from gamelogic import RaceManager
 from menu import character_selection_screen
+import debug_config
 
 
 class Game:
@@ -48,14 +49,12 @@ class Game:
         if self.debug_mode:
             self.printed_arrived = False
 
-        self.player1_current_zone_name = "Nieznany"
-        self.player2_current_zone_name = "Nieznany"
+        self.default_zone_name = "Nieznany obszar"
+        self.player1_current_zone_name = self.default_zone_name
+        self.player2_current_zone_name = self.default_zone_name
         self.zone_font = pygame.font.SysFont("arial", 20)
         self.zone_text_color = BLACK
         self.zone_text_bg = None
-
-        self.left_view = pygame.Surface((self.WIDTH // 2, self.HEIGHT))
-        self.right_view = pygame.Surface((self.WIDTH // 2, self.HEIGHT))
 
     def intro_screen(self):
         intro = True
@@ -125,8 +124,8 @@ class Game:
                     self.current_target_room = random.choice(self.game_map.target_rooms)
                     spawn_x1, spawn_y1 = self.game_map.get_random_spawn_point()
                     spawn_x2, spawn_y2 = self.game_map.get_random_spawn_point()
-                    self.player1.random_spawn_point(spawn_x1, spawn_y1)
-                    self.player2.random_spawn_point(spawn_x2, spawn_y2)
+                    if self.player1: self.player1.random_spawn_point(spawn_x1, spawn_y1)
+                    if self.player2: self.player2.random_spawn_point(spawn_x2, spawn_y2)
                     if self.debug_mode:
                         self.printed_arrived = False
 
@@ -142,124 +141,115 @@ class Game:
 
     def update(self):
         keys = pygame.key.get_pressed()
-        # Gracz 1: W, S, A, D
-        self.player1.update(keys, self.collision_mask)
-        # Gracz 2: strzałki
-        self.player2.update(keys, self.collision_mask)
+        if self.player1:
+            self.player1.update(keys, self.collision_mask)
+        if self.player2:
+            self.player2.update(keys, self.collision_mask)
 
-        self.camera_left_offset.x = self.player1.rect.centerx - self.WIDTH // 4
-        self.camera_left_offset.y = self.player1.rect.centery - self.HEIGHT // 2
-        self.camera_right_offset.x = self.player1.rect.centerx - self.WIDTH // 4
-        self.camera_right_offset.y = self.player1.rect.centery - self.HEIGHT // 2
+        if self.player1:
+            for zone in self.game_map.transition_zones:
+                if zone.rect.colliderect(self.player1.rect):
+                    new_pos = zone.target_position
+                    self.player1.rect.topleft = new_pos
+                    if self.debug_mode:
+                        debug_config.log_player_transition("Gracz 1", zone.name, new_pos)
+                    break
 
-        for zone in self.game_map.transition_zones:
-            if zone.rect.colliderect(self.player1.rect):
-                if self.debug_mode:
-                    print(f"[PRZEJSCIE TEST] {zone.name} -> {zone.target_position}")
-                self.player1.rect.topleft = zone.target_position
-                break
+        if self.player2:
+            for zone in self.game_map.transition_zones:
+                if zone.rect.colliderect(self.player2.rect):
+                    new_pos = zone.target_position
+                    self.player2.rect.topleft = new_pos
+                    if self.debug_mode:
+                        debug_config.log_player_transition("Gracz 2", zone.name, new_pos)
+                    break
+
         if self.debug_mode:
-            if self.printed_arrived is False:
-                if self.current_target_room.rect.colliderect(self.player1.rect):
-                    print(f"TRAFILES DO SALI: {self.current_target_room.name}")
-                    self.printed_arrived = True
+            debug_config.log_player_goal_arrival(self, self.player1, "Gracz 1")
+            debug_config.log_player_goal_arrival(self, self.player2, "Gracz 2")
 
-        for zone in self.game_map.transition_zones:
-            if zone.rect.colliderect(self.player2.rect):
-                if self.debug_mode:
-                    print(f"[PRZEJSCIE TEST] {zone.name} -> {zone.target_position}")
-                self.player2.rect.topleft = zone.target_position
-                break
-        if self.debug_mode:
-            if self.printed_arrived is False:
-                if self.current_target_room.rect.colliderect(self.player2.rect):
-                    print(f"TRAFILES DO SALI: {self.current_target_room.name}")
-                    self.printed_arrived = True
+        if self.player1:
+            for named_zone in self.game_map.named_zones:
+                if named_zone.rect.colliderect(self.player1.rect):
+                    self.player1_current_zone_name = named_zone.name
 
-        for named_zone in self.game_map.named_zones:
-            if named_zone.rect.colliderect(self.player1.rect):
-                self.player1_current_zone_name = named_zone.name
-                break
+        if self.player2:
+            for named_zone in self.game_map.named_zones:
+                if named_zone.rect.colliderect(self.player2.rect):
+                    self.player2_current_zone_name = named_zone.name
 
-        for named_zone in self.game_map.named_zones:
-            if named_zone.rect.colliderect(self.player2.rect):
-                self.player2_current_zone_name = named_zone.name
-                break
-
-        self.race.update()
+        if self.race:
+            self.race.update()
 
     def draw(self):
-        self.left_view.fill((255, 255, 255))
-        self.right_view.fill((255, 255, 255))
+        self.left_view.fill(GAME_BACKGROUND_COLOR)
+        self.right_view.fill(GAME_BACKGROUND_COLOR)
 
-        player1_center = self.player1.rect.center
-        player2_center = self.player2.rect.center
+        if not self.player1:
+            pygame.display.flip()
+            return
 
-        self.camera_left_offset.x = player1_center[0] * self.zoom - self.WIDTH // 4
-        self.camera_left_offset.y = player1_center[1] * self.zoom - self.HEIGHT // 2
-        self.camera_right_offset.x = player2_center[0] * self.zoom - self.WIDTH // 4
-        self.camera_right_offset.y = player2_center[1] * self.zoom - self.HEIGHT // 2
+        player1_center_map_coords = pygame.Vector2(self.player1.rect.center)
+        player2_center_map_coords = pygame.Vector2(
+            self.player2.rect.center) if self.player2 else player1_center_map_coords
+
+        self.camera_left_offset.x = player1_center_map_coords.x * self.zoom - (self.WIDTH // 4)
+        self.camera_left_offset.y = player1_center_map_coords.y * self.zoom - (self.HEIGHT // 2)
+        self.camera_right_offset.x = player2_center_map_coords.x * self.zoom - (self.WIDTH // 4)
+        self.camera_right_offset.y = player2_center_map_coords.y * self.zoom - (self.HEIGHT // 2)
 
         self.left_view.blit(self.scaled_bg, (-self.camera_left_offset.x, -self.camera_left_offset.y))
-        self.right_view.blit(self.scaled_bg, (-self.camera_right_offset.x, -self.camera_right_offset.y))
+        if self.player2:
+            self.right_view.blit(self.scaled_bg, (-self.camera_right_offset.x, -self.camera_right_offset.y))
 
         for sprite in self.all_sprites:
-            scaled_pos = pygame.Vector2(sprite.rect.topleft) * self.zoom - self.camera_left_offset
             scaled_img = pygame.transform.smoothscale(
                 sprite.image,
                 (int(sprite.rect.width * self.zoom), int(sprite.rect.height * self.zoom))
             )
-            self.left_view.blit(scaled_img, scaled_pos)
 
-        for sprite in self.all_sprites:
-            scaled_pos = pygame.Vector2(sprite.rect.topleft) * self.zoom - self.camera_right_offset
-            scaled_img = pygame.transform.smoothscale(
-                sprite.image,
-                (int(sprite.rect.width * self.zoom), int(sprite.rect.height * self.zoom))
-            )
-            self.right_view.blit(scaled_img, scaled_pos)
+            scaled_pos_left = (pygame.Vector2(sprite.rect.topleft) * self.zoom) - self.camera_left_offset
+            self.left_view.blit(scaled_img, scaled_pos_left)
+
+            if self.player2:
+                scaled_pos_right = (pygame.Vector2(sprite.rect.topleft) * self.zoom) - self.camera_right_offset
+                self.right_view.blit(scaled_img, scaled_pos_right)
 
         text_surf_p1 = self.zone_font.render(self.player1_current_zone_name, True, self.zone_text_color,
                                              self.zone_text_bg)
         text_rect_p1 = text_surf_p1.get_rect(topleft=(10, 10))
         self.left_view.blit(text_surf_p1, text_rect_p1)
 
-        text_surf_p2 = self.zone_font.render(self.player2_current_zone_name, True, self.zone_text_color,
-                                             self.zone_text_bg)
-        text_rect_p2 = text_surf_p2.get_rect(topleft=(10, 10))
-        self.right_view.blit(text_surf_p2, text_rect_p2)
-
-        self.screen.blit(self.left_view, (0, 0))
-        self.screen.blit(self.right_view, (self.WIDTH // 2, 0))
-        pygame.draw.line(self.screen, (0, 0, 0), (self.WIDTH // 2, 0), (self.WIDTH // 2, self.HEIGHT), 2)
+        if self.player2:
+            text_surf_p2 = self.zone_font.render(self.player2_current_zone_name, True, self.zone_text_color,
+                                                 self.zone_text_bg)
+            text_rect_p2 = text_surf_p2.get_rect(topleft=(10, 10))
+            self.right_view.blit(text_surf_p2, text_rect_p2)
 
         if self.debug_mode:
-            for zone in self.game_map.transition_zones:
-                debug_rect = zone.rect.copy()
-                debug_rect.x *= self.zoom
-                debug_rect.y *= self.zoom
-                debug_rect.width *= self.zoom
-                debug_rect.height *= self.zoom
-                pygame.draw.rect(self.screen, RED, debug_rect.move(-self.camera_left_offset), 2)
-            for room in self.game_map.target_rooms:
-                debug_rect = room.rect.copy()
-                debug_rect.x *= self.zoom
-                debug_rect.y *= self.zoom
-                debug_rect.width *= self.zoom
-                debug_rect.height *= self.zoom
-                if room == self.current_target_room:
-                    pygame.draw.rect(self.screen, GREEN, debug_rect.move(-self.camera_left_offset), 2)
-                else:
-                    pygame.draw.rect(self.screen, BLUE, debug_rect.move(-self.camera_left_offset), 2)
-            for named_zone in self.game_map.named_zones:
-                debug_rect = named_zone.rect.copy()
-                debug_rect.x *= self.zoom
-                debug_rect.y *= self.zoom
-                debug_rect.width *= self.zoom
-                debug_rect.height *= self.zoom
-                pygame.draw.rect(self.screen, YELLOW, debug_rect.move(-self.camera_left_offset), 2)
+            debug_config.draw_debug_visuals(
+                self.left_view,
+                self.game_map,
+                self.current_target_room,
+                self.camera_left_offset,
+                self.zoom
+            )
+            debug_config.draw_debug_visuals(
+                self.right_view,
+                self.game_map,
+                self.current_target_room,
+                self.camera_right_offset,
+                self.zoom
+            )
 
-            pygame.display.set_caption(f"FPS: {self.clock.get_fps()}")
+        self.screen.blit(self.left_view, (0, 0))
+        if self.player2:
+            self.screen.blit(self.right_view, (self.WIDTH // 2, 0))
+            pygame.draw.line(self.screen, BLACK, (self.WIDTH // 2, 0), (self.WIDTH // 2, self.HEIGHT), 2)
+
+        if self.debug_mode:
+            pygame.display.set_caption(
+                f"FPS: {self.clock.get_fps():.2f}")
 
         pygame.display.flip()
 
