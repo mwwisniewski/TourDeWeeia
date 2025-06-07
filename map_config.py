@@ -2,6 +2,12 @@ import pygame
 import random
 
 
+class NamedZone:
+    def __init__(self, name, area_rect):
+        self.name = name
+        self.rect = area_rect
+
+
 class TargetRoom:
     def __init__(self, name, area_rect):
         self.name = name
@@ -16,12 +22,13 @@ class TransitionZone:
 
 
 class Map:
-    def __init__(self, path, mask_path, spawn_points, transition_zones=None, target_rooms=None):
+    def __init__(self, path, mask_path, spawn_points, transition_zones=None, target_rooms=None, named_zones=None):
         self.path = path
         self.mask_path = mask_path
         self.spawn_points = spawn_points
         self.transition_zones = transition_zones
         self.target_rooms = target_rooms
+        self.named_zones = named_zones
 
     def load(self):
         bg_image = pygame.image.load(self.path).convert()
@@ -108,37 +115,49 @@ def create_main_map():
         # Drugie pietro sieci (te laboratoria elektrotechniki)
         TargetRoom("Laboratoria elektrotechniki", pygame.Rect(5320, 235, 25, 175)),
         # Trzecie pietro sieci (IIS):
-        TargetRoom("301", pygame.Rect(6295,75,25,50)),
-        TargetRoom("302", pygame.Rect(6295,170,25,50)),
-        TargetRoom("303", pygame.Rect(6295,260,25,50)),
-        TargetRoom("304", pygame.Rect(6295,360,25,50)),
-        TargetRoom("305", pygame.Rect(6295,460,25,50)),
-        TargetRoom("306", pygame.Rect(6295,555,25,50)),
-        TargetRoom("307", pygame.Rect(6295,650,25,50)),
-        TargetRoom("308", pygame.Rect(6295,750,25,50)),
-        TargetRoom("309", pygame.Rect(6295,845,25,50)),
-        TargetRoom("310", pygame.Rect(6295,940,25,50)),
-        TargetRoom("311", pygame.Rect(6295,1035,25,50)),
-        TargetRoom("312", pygame.Rect(6295,1130,25,50)),
-        TargetRoom("313", pygame.Rect(6455,1130,25,50)),
-        TargetRoom("314", pygame.Rect(6455,1035,25,50)),
-        TargetRoom("315", pygame.Rect(6455,940,25,50)),
-        TargetRoom("316", pygame.Rect(6455,845,25,50)),
-        TargetRoom("317", pygame.Rect(6455,750,25,50)),
-        TargetRoom("318", pygame.Rect(6455,650,25,50)),
-        TargetRoom("319", pygame.Rect(6455,555,25,50)),
-        TargetRoom("320", pygame.Rect(6455,460,25,50)),
-        TargetRoom("321", pygame.Rect(6455,170,25,50)),
-        TargetRoom("322", pygame.Rect(6455,75,25,50)),
+        TargetRoom("301", pygame.Rect(6295, 75, 25, 50)),
+        TargetRoom("302", pygame.Rect(6295, 170, 25, 50)),
+        TargetRoom("303", pygame.Rect(6295, 260, 25, 50)),
+        TargetRoom("304", pygame.Rect(6295, 360, 25, 50)),
+        TargetRoom("305", pygame.Rect(6295, 460, 25, 50)),
+        TargetRoom("306", pygame.Rect(6295, 555, 25, 50)),
+        TargetRoom("307", pygame.Rect(6295, 650, 25, 50)),
+        TargetRoom("308", pygame.Rect(6295, 750, 25, 50)),
+        TargetRoom("309", pygame.Rect(6295, 845, 25, 50)),
+        TargetRoom("310", pygame.Rect(6295, 940, 25, 50)),
+        TargetRoom("311", pygame.Rect(6295, 1035, 25, 50)),
+        TargetRoom("312", pygame.Rect(6295, 1130, 25, 50)),
+        TargetRoom("313", pygame.Rect(6455, 1130, 25, 50)),
+        TargetRoom("314", pygame.Rect(6455, 1035, 25, 50)),
+        TargetRoom("315", pygame.Rect(6455, 940, 25, 50)),
+        TargetRoom("316", pygame.Rect(6455, 845, 25, 50)),
+        TargetRoom("317", pygame.Rect(6455, 750, 25, 50)),
+        TargetRoom("318", pygame.Rect(6455, 650, 25, 50)),
+        TargetRoom("319", pygame.Rect(6455, 555, 25, 50)),
+        TargetRoom("320", pygame.Rect(6455, 460, 25, 50)),
+        TargetRoom("321", pygame.Rect(6455, 170, 25, 50)),
+        TargetRoom("322", pygame.Rect(6455, 75, 25, 50)),
         # Czwarte pietro sieci (Zakład teorii sterowania instytutu automatyki)
-        TargetRoom("401",pygame.Rect(7680,75,25,50)),
-        TargetRoom("402",pygame.Rect(7680,235,25,50)),
-        TargetRoom("403",pygame.Rect(7680,490,25,50)),
-        TargetRoom("404",pygame.Rect(7680,680,25,50)),
-        TargetRoom("405",pygame.Rect(7680,875,25,50)),
-        TargetRoom("406",pygame.Rect(7680,1035,25,50)),
-        TargetRoom("407",pygame.Rect(7840,875,25,50)),
-        TargetRoom("408",pygame.Rect(7840,490,25,50))
+        TargetRoom("401", pygame.Rect(7680, 75, 25, 50)),
+        TargetRoom("402", pygame.Rect(7680, 235, 25, 50)),
+        TargetRoom("403", pygame.Rect(7680, 490, 25, 50)),
+        TargetRoom("404", pygame.Rect(7680, 680, 25, 50)),
+        TargetRoom("405", pygame.Rect(7680, 875, 25, 50)),
+        TargetRoom("406", pygame.Rect(7680, 1035, 25, 50)),
+        TargetRoom("407", pygame.Rect(7840, 875, 25, 50)),
+        TargetRoom("408", pygame.Rect(7840, 490, 25, 50))
+    ]
+    named_map_zones = [
+        NamedZone("Piętro 1", pygame.Rect(0, 0, 1600, 1600)),
+        NamedZone("IMSI", pygame.Rect(25, 1900, 1600, 1600)),
+        NamedZone("Główne wejście WEEIA", pygame.Rect(1960, 0, 1600, 1600)),
+        NamedZone("Wejście przy szatni", pygame.Rect(1960, 1920, 1600, 1600)),
+        NamedZone("Piętro 1 (Bistro)", pygame.Rect(3850, 0, 1200, 1125)),
+        NamedZone("Klatka schodowa - 2 Piętro", pygame.Rect(5280, 0, 650, 650)),
+        NamedZone("Korytarz na 3 piętrze - IIS", pygame.Rect(6250, 0, 270, 1300)),
+        NamedZone("Klatka schodowa - 3 Piętro", pygame.Rect(6630, 0, 650, 650)),
+        NamedZone("Korytarz na 4 piętrze", pygame.Rect(7640, 0, 270, 1300)),
+        NamedZone("Klatka schodowa - 4 Piętro", pygame.Rect(8060, 0, 650, 650))
     ]
     # Zapisane koordynaty spawnow dla roznych pozimow:
     # Wejscie WEEIA: (2140, 275), (2060, 360), (3470, 780)
@@ -149,4 +168,5 @@ def create_main_map():
     spawn_list = [(2140, 275), (2060, 360), (3470, 780), (1425, 180), (1020, 1475), (1020, 1320), (1350, 1415),
                   (140, 3400), (1200, 2460), (3060, 3450), (8210, 300), (6840, 150), (5425, 530), (4900, 400)]
     return Map("img/mapa_ostateczna.png", "img/mapa_ostateczna_maska.png", spawn_list, transition_zones=transitions,
-               target_rooms=rooms)  # MAPA_MASKA_TEST do usuniecia i podmienienia na MAPA_MASKA jak zostanie dodana do main brancha
+               target_rooms=rooms, named_zones=named_map_zones)
+    # MAPA_MASKA_TEST do usuniecia i podmienienia na MAPA_MASKA jak zostanie dodana do main brancha

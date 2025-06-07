@@ -48,6 +48,12 @@ class Game:
         if self.debug_mode:
             self.printed_arrived = False
 
+        self.player1_current_zone_name = "Nieznany"
+        self.player2_current_zone_name = "Nieznany"
+        self.zone_font = pygame.font.SysFont("arial", 20)
+        self.zone_text_color = BLACK
+        self.zone_text_bg = None
+
         self.left_view = pygame.Surface((self.WIDTH // 2, self.HEIGHT))
         self.right_view = pygame.Surface((self.WIDTH // 2, self.HEIGHT))
 
@@ -121,6 +127,8 @@ class Game:
                     spawn_x2, spawn_y2 = self.game_map.get_random_spawn_point()
                     self.player1.random_spawn_point(spawn_x1, spawn_y1)
                     self.player2.random_spawn_point(spawn_x2, spawn_y2)
+                    if self.debug_mode:
+                        self.printed_arrived = False
 
                 self.is_current_target_room = False
                 print(f"WYLOSOWANA SALA: {self.current_target_room.name}")
@@ -168,6 +176,16 @@ class Game:
                     print(f"TRAFILES DO SALI: {self.current_target_room.name}")
                     self.printed_arrived = True
 
+        for named_zone in self.game_map.named_zones:
+            if named_zone.rect.colliderect(self.player1.rect):
+                self.player1_current_zone_name = named_zone.name
+                break
+
+        for named_zone in self.game_map.named_zones:
+            if named_zone.rect.colliderect(self.player2.rect):
+                self.player2_current_zone_name = named_zone.name
+                break
+
         self.race.update()
 
     def draw(self):
@@ -176,6 +194,7 @@ class Game:
 
         player1_center = self.player1.rect.center
         player2_center = self.player2.rect.center
+
         self.camera_left_offset.x = player1_center[0] * self.zoom - self.WIDTH // 4
         self.camera_left_offset.y = player1_center[1] * self.zoom - self.HEIGHT // 2
         self.camera_right_offset.x = player2_center[0] * self.zoom - self.WIDTH // 4
@@ -200,6 +219,16 @@ class Game:
             )
             self.right_view.blit(scaled_img, scaled_pos)
 
+        text_surf_p1 = self.zone_font.render(self.player1_current_zone_name, True, self.zone_text_color,
+                                             self.zone_text_bg)
+        text_rect_p1 = text_surf_p1.get_rect(topleft=(10, 10))
+        self.left_view.blit(text_surf_p1, text_rect_p1)
+
+        text_surf_p2 = self.zone_font.render(self.player2_current_zone_name, True, self.zone_text_color,
+                                             self.zone_text_bg)
+        text_rect_p2 = text_surf_p2.get_rect(topleft=(10, 10))
+        self.right_view.blit(text_surf_p2, text_rect_p2)
+
         self.screen.blit(self.left_view, (0, 0))
         self.screen.blit(self.right_view, (self.WIDTH // 2, 0))
         pygame.draw.line(self.screen, (0, 0, 0), (self.WIDTH // 2, 0), (self.WIDTH // 2, self.HEIGHT), 2)
@@ -222,6 +251,13 @@ class Game:
                     pygame.draw.rect(self.screen, GREEN, debug_rect.move(-self.camera_left_offset), 2)
                 else:
                     pygame.draw.rect(self.screen, BLUE, debug_rect.move(-self.camera_left_offset), 2)
+            for named_zone in self.game_map.named_zones:
+                debug_rect = named_zone.rect.copy()
+                debug_rect.x *= self.zoom
+                debug_rect.y *= self.zoom
+                debug_rect.width *= self.zoom
+                debug_rect.height *= self.zoom
+                pygame.draw.rect(self.screen, YELLOW, debug_rect.move(-self.camera_left_offset), 2)
 
             pygame.display.set_caption(f"FPS: {self.clock.get_fps()}")
 

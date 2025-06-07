@@ -7,7 +7,7 @@ CONTROL_TYPE_ARROWS = 2
 DEBUG = True
 if DEBUG:
     PLAYER_SPEED = 10
-    ZOOM = 1
+    ZOOM = 0.75
 else:
     PLAYER_SPEED = 4
     ZOOM = 1.4
