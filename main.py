@@ -129,6 +129,7 @@ class Game:
                     if self.debug_mode:
                         self.printed_arrived = False
 
+                self.draw()
                 self.is_current_target_room = False
                 print(f"WYLOSOWANA SALA: {self.current_target_room.name}")
                 self.race.start_round(self.current_target_room.rect)
