@@ -44,6 +44,7 @@ class Game:
         self.all_sprites = pygame.sprite.Group()
         self.player1 = None  # Zeby pozbyc sie Unresolved reference
         self.player2 = None
+        self.race = None
         self.debug_mode = DEBUG  # DO TESTOW POTEM ZMIENIC NA FALSE LUB NONE!! (POKAZUJE STREFY PRZEJSC, STREFY SAL ORAZ FPSY)
         self.printed_destination = True
         if self.debug_mode:
@@ -52,7 +53,8 @@ class Game:
         self.default_zone_name = "Nieznany obszar"
         self.player1_current_zone_name = self.default_zone_name
         self.player2_current_zone_name = self.default_zone_name
-        self.zone_font = pygame.font.SysFont("arial", 20)
+        self.zone_font = pygame.font.SysFont("arial", 20, bold=True)
+        self.game_info_font = pygame.font.SysFont("arial", 24, bold=True)
         self.zone_text_color = BLACK
         self.zone_text_bg = None
 
@@ -224,7 +226,7 @@ class Game:
         if self.player2:
             text_surf_p2 = self.zone_font.render(self.player2_current_zone_name, True, self.zone_text_color,
                                                  self.zone_text_bg)
-            text_rect_p2 = text_surf_p2.get_rect(topleft=(10, 10))
+            text_rect_p2 = text_surf_p2.get_rect(topright=((self.WIDTH // 2) - 15, 10))
             self.right_view.blit(text_surf_p2, text_rect_p2)
 
         if self.debug_mode:
@@ -246,7 +248,37 @@ class Game:
         self.screen.blit(self.left_view, (0, 0))
         if self.player2:
             self.screen.blit(self.right_view, (self.WIDTH // 2, 0))
-            pygame.draw.line(self.screen, BLACK, (self.WIDTH // 2, 0), (self.WIDTH // 2, self.HEIGHT), 2)
+            pygame.draw.line(self.screen, DARKGRAY, (self.WIDTH // 2, 0), (self.WIDTH // 2, self.HEIGHT), 1)
+
+        if self.race:
+            if self.race.round_active:
+                current_round_time = (pygame.time.get_ticks() - self.race.globaltimer) / 1000
+                time_str = f"{current_round_time:.2f}"
+                time_surf = self.game_info_font.render(time_str, True, self.zone_text_color,
+                                                       self.zone_text_bg)
+                time_rect = time_surf.get_rect(centerx=self.WIDTH // 2, top=10)
+                self.screen.blit(time_surf, time_rect)
+            else:
+                time_str = "0.00"
+                time_surf = self.game_info_font.render(time_str, True, self.zone_text_color,
+                                                       self.zone_text_bg)
+                time_rect = time_surf.get_rect(centerx=self.WIDTH // 2, top=10)
+                self.screen.blit(time_surf, time_rect)
+
+            p1_score_str = str(self.race.player1points)
+            p1_score_surf = self.game_info_font.render(p1_score_str, True, self.zone_text_color, self.zone_text_bg)
+            p1_score_rect = p1_score_surf.get_rect(centerx=self.WIDTH // 2 - 10, top=40)
+            self.screen.blit(p1_score_surf, p1_score_rect)
+
+            colon_surf = self.game_info_font.render(":", True, self.zone_text_color, self.zone_text_bg)
+            colon_rect = colon_surf.get_rect(centerx=self.WIDTH // 2, top=40)
+            self.screen.blit(colon_surf, colon_rect)
+
+            if self.player2:
+                p2_score_str = str(self.race.player2points)
+                p2_score_surf = self.game_info_font.render(p2_score_str, True, self.zone_text_color, self.zone_text_bg)
+                p2_score_rect = p2_score_surf.get_rect(centerx=self.WIDTH // 2 + 10, top=40)
+                self.screen.blit(p2_score_surf, p2_score_rect)
 
         if self.debug_mode:
             pygame.display.set_caption(
