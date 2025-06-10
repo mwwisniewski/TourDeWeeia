@@ -77,8 +77,7 @@ class RaceManager:
 
         self.round_index += 1
         self.round_active = False
-
-        if self.round_index >= 3:
+        if self.player1points == 2 or self.player2points == 2:
             self.end_match()
 
     def end_match(self):
