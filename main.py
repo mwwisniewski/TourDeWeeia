@@ -140,6 +140,9 @@ class Game:
 
     def handle_events(self):
         for event in pygame.event.get():
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_r:
+                    self.reset_game()
             if event.type == pygame.QUIT:
                 self.running = False
 
@@ -287,6 +290,22 @@ class Game:
 
         pygame.display.flip()
 
+    def reset_game(self):
+        self.race.player1points=0
+        self.race.player2points=0
+        self.race.globaltimer=0
+        self.race.player1times=[0,0,0]
+        self.race.player2times=[0,0,0]
+        self.race.player1_finished = False
+        self.race.player2_finished = False
+        self.race.round_index = 0
+        self.race.game_over = False
+        self.race.goal_rect = None
+        self.race.round_active= False
+        self.race.player1_finished = False
+        self.race.player2_finished = False
+        print("----------RESET GRY----------")
+        self.draw()
 
 if __name__ == "__main__":
     game = Game()

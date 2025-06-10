@@ -42,6 +42,7 @@ class RaceManager:
         self.round_active = True
         self.player1_finished = False
         self.player2_finished = False
+        pygame.event.clear()
 
     def update(self):
         if not self.round_active:
