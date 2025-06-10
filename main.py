@@ -126,14 +126,15 @@ class Game:
                     self.current_target_room = random.choice(self.game_map.target_rooms)
                     spawn_x1, spawn_y1 = self.game_map.get_random_spawn_point()
                     spawn_x2, spawn_y2 = self.game_map.get_random_spawn_point()
-                    if self.player1: self.player1.random_spawn_point(spawn_x1, spawn_y1)
-                    if self.player2: self.player2.random_spawn_point(spawn_x2, spawn_y2)
+                    if self.player1: self.player1.update_player_position(spawn_x1, spawn_y1)
+                    if self.player2: self.player2.update_player_position(spawn_x2, spawn_y2)
                     if self.debug_mode:
                         self.printed_arrived = False
 
-                self.draw()
                 self.is_current_target_room = False
                 print(f"WYLOSOWANA SALA: {self.current_target_room.name}")
+                self.update()
+                self.draw()
                 self.race.start_round(self.current_target_room.rect)
             self.clock.tick(FPS)
 
@@ -253,13 +254,13 @@ class Game:
         if self.race:
             if self.race.round_active:
                 current_round_time = (pygame.time.get_ticks() - self.race.globaltimer) / 1000
-                time_str = f"{current_round_time:.2f}"
+                time_str = f"{int(current_round_time // 60)}:{current_round_time % 60:.2f}"
                 time_surf = self.game_info_font.render(time_str, True, self.zone_text_color,
                                                        self.zone_text_bg)
                 time_rect = time_surf.get_rect(centerx=self.WIDTH // 2, top=10)
                 self.screen.blit(time_surf, time_rect)
             else:
-                time_str = "0.00"
+                time_str = "0:0.00"
                 time_surf = self.game_info_font.render(time_str, True, self.zone_text_color,
                                                        self.zone_text_bg)
                 time_rect = time_surf.get_rect(centerx=self.WIDTH // 2, top=10)

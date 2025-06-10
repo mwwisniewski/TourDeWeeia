@@ -9,7 +9,6 @@ class Player(pygame.sprite.Sprite):
         self.control_type = control_type
         self.speed = PLAYER_SPEED
         self.rect = pygame.Rect(x, y, 28, 28)
-        self.posX, self.posY = x, y
         self.freeze_until = 0
         self.control = True
         self.auto_target = None
@@ -120,6 +119,5 @@ class Player(pygame.sprite.Sprite):
         self.auto_target = pygame.Vector2(x, y)
         self.control = False
 
-    def random_spawn_point(self, x, y):
+    def update_player_position(self, x, y):
         self.rect.topleft = (x, y)
-        self.posX, self.posY = x, y
