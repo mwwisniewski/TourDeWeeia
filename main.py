@@ -1,15 +1,10 @@
 import random
-import sys
-import pygame
-import os
 import map_config
 from sprites import *
-from config import *
 from menu import *
 from gamelogic import RaceManager
 from menu import character_selection_screen
 import debug_config
-
 
 class Game:
     def __init__(self):
@@ -76,6 +71,8 @@ class Game:
             self.all_sprites.add(self.player1)
             self.all_sprites.add(self.player2)
             self.race = RaceManager(self.player1, self.player2)
+            self.race.events.get_target_rooms(self.game_map.target_rooms)
+
 
             intro = False
 
@@ -135,6 +132,7 @@ class Game:
                 print(f"WYLOSOWANA SALA: {self.current_target_room.name}")
                 self.update()
                 self.draw()
+                self.race.events.get_current_target_room(self.current_target_room)
                 self.race.start_round(self.current_target_room.rect)
             self.clock.tick(FPS)
 
@@ -157,6 +155,7 @@ class Game:
             for zone in self.game_map.transition_zones:
                 if zone.rect.colliderect(self.player1.rect):
                     new_pos = zone.target_position
+                    self.race.events.maybe_event_lekotka(self.player1,zone)
                     self.player1.rect.topleft = new_pos
                     if self.debug_mode:
                         debug_config.log_player_transition("Gracz 1", zone.name, new_pos)
@@ -166,6 +165,7 @@ class Game:
             for zone in self.game_map.transition_zones:
                 if zone.rect.colliderect(self.player2.rect):
                     new_pos = zone.target_position
+                    self.race.events.maybe_event_lekotka(self.player2,zone)
                     self.player2.rect.topleft = new_pos
                     if self.debug_mode:
                         debug_config.log_player_transition("Gracz 2", zone.name, new_pos)
@@ -186,7 +186,9 @@ class Game:
                     self.player2_current_zone_name = named_zone.name
 
         if self.race:
-            self.race.update()
+            goal = self.race.update()
+            if goal is not None:
+                self.current_target_room = goal
 
     def draw(self):
         self.left_view.fill(GAME_BACKGROUND_COLOR)

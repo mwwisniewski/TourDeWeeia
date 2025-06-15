@@ -1,4 +1,5 @@
 import pygame
+import events
 
 class RaceManager:
     def __init__(self, player1, player2):
@@ -18,6 +19,7 @@ class RaceManager:
         self.round_index = 0
         self.round_active = False
         self.game_over = False
+        self.events = events.EventManager(self.player1, self.player2)
 
     def start_round(self,goal_rect):
         self.goal_rect = goal_rect
@@ -46,22 +48,33 @@ class RaceManager:
 
     def update(self):
         if not self.round_active:
-            return
+            return None
 
         now = pygame.time.get_ticks()
 
         if not self.player1_finished and self.goal_rect.colliderect(self.player1.rect):
+            new_goal = self.events.maybe_event_sala()
+            if new_goal and not self.player1_finished and not self.player2_finished:
+                self.goal_rect = new_goal.rect
+                return new_goal
+
             self.player1_finished = True
             self.player1times[self.round_index] = now - self.globaltimer
             print(f"🏁 Gracz 1 dotarł w {self.player1times[self.round_index]/1000} s")
 
         if not self.player2_finished and self.goal_rect.colliderect(self.player2.rect):
+            new_goal = self.events.maybe_event_sala()
+            if new_goal and not self.player1_finished and not self.player2_finished:
+                self.goal_rect = new_goal.rect
+                return new_goal
+
             self.player2_finished = True
             self.player2times[self.round_index] = now - self.globaltimer
             print(f"🏁 Gracz 2 dotarł w {self.player2times[self.round_index]/1000} s")
 
         if self.player1_finished and self.player2_finished:
             self.end_round()
+        return None
 
     def end_round(self):
         t1 = self.player1times[self.round_index]
@@ -101,3 +114,5 @@ class RaceManager:
             print("🥇 Wygrywa Gracz 2!")
         else:
             print("🤝 Remis!")
+
+
