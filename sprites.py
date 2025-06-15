@@ -10,11 +10,7 @@ class Player(pygame.sprite.Sprite):
         self.speed = PLAYER_SPEED
         self.rect = pygame.Rect(x, y, 28, 28)
         self.freeze_until = 0
-        self.control = True
-        self.auto_target = None
-        self.on_reach_target = None
-        self.broken_leg = False
-        self.current_goal = None
+        self.slowed_until = 0
 
         self.uses_sprites = isinstance(color_or_path, str)
         if self.uses_sprites:
@@ -53,12 +49,15 @@ class Player(pygame.sprite.Sprite):
         self.image = self.sprites[f"{self.current_animation}_{self.direction}"][self.animation_index]
 
     def update(self, keys, collision_mask):
-        if pygame.time.get_ticks() < self.freeze_until:
+        now = pygame.time.get_ticks()
+        if now < self.freeze_until:
             return
+        if now > self.slowed_until:
+            self.speed = PLAYER_SPEED
 
         dx, dy = 0, 0
 
-        if self.control and self.control_type == CONTROL_TYPE_WSAD:
+        if self.control_type == CONTROL_TYPE_WSAD:
             if keys[pygame.K_w]:
                 dy -= self.speed
                 self.direction = "up"
@@ -71,7 +70,7 @@ class Player(pygame.sprite.Sprite):
             if keys[pygame.K_d]:
                 dx += self.speed
                 self.direction = "right"
-        elif self.control and self.control_type == CONTROL_TYPE_ARROWS:
+        elif self.control_type == CONTROL_TYPE_ARROWS:
             if keys[pygame.K_UP]:
                 dy -= self.speed
                 if self.uses_sprites:
@@ -115,9 +114,8 @@ class Player(pygame.sprite.Sprite):
     def freeze(self, duration_ms):
         self.freeze_until = pygame.time.get_ticks() + duration_ms
 
-    def forceMove(self, x, y):
-        self.auto_target = pygame.Vector2(x, y)
-        self.control = False
+    def slow_until(self, duration_ms):
+        self.slowed_until = pygame.time.get_ticks() + duration_ms
 
     def update_player_position(self, x, y):
         self.rect.topleft = (x, y)
