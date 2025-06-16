@@ -1,9 +1,9 @@
 import pygame
 import sys
-from config import *
+import config
 
 
-class Button:
+class Menu:
     def __init__(self, text, x, y, width, height, callback, font_size=32):
         self.rect = pygame.Rect(x, y, width, height)
         self.color = (200, 200, 200)
@@ -11,7 +11,7 @@ class Button:
         self.text = text
         self.callback = callback
         self.font = pygame.font.SysFont("arial", font_size)
-        self.text_render = self.font.render(text, True, BLACK)
+        self.text_render = self.font.render(text, True, config.BLACK)
         self.text_pos = self.text_render.get_rect(center=self.rect.center)
         self.active = True
 
@@ -22,7 +22,7 @@ class Button:
         else:
             color = self.hover_color if self.rect.collidepoint(mouse_pos) else self.color
         pygame.draw.rect(screen, color, self.rect)
-        pygame.draw.rect(screen, BLACK, self.rect, 2)
+        pygame.draw.rect(screen, config.BLACK, self.rect, 2)
         screen.blit(self.text_render, self.text_pos)
 
     def handle_event(self, event):
@@ -44,18 +44,18 @@ def character_selection_screen(screen, width, clock):
     character_options = []
     for path in character_paths:
         img = pygame.image.load(f"{path}/idle_down_0.png").convert_alpha()
-        img = pygame.transform.scale(img, (50*ZOOM_CHARACTER_SCREEN_MULT, 50*ZOOM_CHARACTER_SCREEN_MULT))
+        img = pygame.transform.scale(img, (50 * config.ZOOM_CHARACTER_SCREEN_MULT, 50 * config.ZOOM_CHARACTER_SCREEN_MULT))
         character_options.append((path, img))  # (ścieżka, obrazek)
 
-    font = pygame.font.SysFont("arial", int(24 * ZOOM_CHARACTER_SCREEN_MULT))
+    font = pygame.font.SysFont("arial", int(24 * config.ZOOM_CHARACTER_SCREEN_MULT))
     p1_index = 0
     p2_index = 1
 
-    sprite_size = int(50 * ZOOM_CHARACTER_SCREEN_MULT)
-    spacing_y = int(80 * ZOOM_CHARACTER_SCREEN_MULT)
+    sprite_size = int(50 * config.ZOOM_CHARACTER_SCREEN_MULT)
+    spacing_y = int(80 * config.ZOOM_CHARACTER_SCREEN_MULT)
 
-    button_width = int(150 * ZOOM_CHARACTER_SCREEN_MULT)
-    button_height = int(50 * ZOOM_CHARACTER_SCREEN_MULT)
+    button_width = int(150 * config.ZOOM_CHARACTER_SCREEN_MULT)
+    button_height = int(50 * config.ZOOM_CHARACTER_SCREEN_MULT)
     button_x = width // 2 - button_width // 2
 
     num_characters = len(character_options)
@@ -63,14 +63,14 @@ def character_selection_screen(screen, width, clock):
     space_after = 40
     button_y = bottom_of_selection + space_after
 
-    play_button = Button("GRAJ", button_x, button_y, button_width, button_height, lambda: None,
-                         font_size=int(28 * ZOOM_CHARACTER_SCREEN_MULT))
+    play_button = Menu("GRAJ", button_x, button_y, button_width, button_height, lambda: None,
+                       font_size=int(28 * config.ZOOM_CHARACTER_SCREEN_MULT))
 
     def draw_selection():
-        screen.fill(WHITE)
+        screen.fill(config.WHITE)
 
-        title_p1 = font.render("Gracz 1 wybiera W/S i SPACJA", True, BLUE)
-        title_p2 = font.render("Gracz 2 wybiera ↑/↓ i ENTER", True, RED)
+        title_p1 = font.render("Gracz 1 wybiera W/S i SPACJA", True, config.BLUE)
+        title_p2 = font.render("Gracz 2 wybiera ↑/↓ i ENTER", True, config.RED)
         screen.blit(title_p1, (100, 50))
         screen.blit(title_p2, (width - title_p2.get_width() - 100, 50))
 
@@ -93,25 +93,25 @@ def character_selection_screen(screen, width, clock):
             screen.blit(img_p1, rect_p1)
             screen.blit(img_p2, rect_p2)
 
-            pygame.draw.rect(screen, BLACK, rect_p1, 2)
-            pygame.draw.rect(screen, BLACK, rect_p2, 2)
+            pygame.draw.rect(screen, config.BLACK, rect_p1, 2)
+            pygame.draw.rect(screen, config.BLACK, rect_p2, 2)
 
             if idx == p1_index:
-                pygame.draw.rect(screen, BLUE, rect_p1, 4)
+                pygame.draw.rect(screen, config.BLUE, rect_p1, 4)
             if idx == p2_index:
-                pygame.draw.rect(screen, RED, rect_p2, 4)
+                pygame.draw.rect(screen, config.RED, rect_p2, 4)
 
             if is_taken_by_p1:
-                pygame.draw.line(screen, BLUE, rect_p1.topleft, rect_p1.bottomright, 3)
-                pygame.draw.line(screen, BLUE, rect_p1.topright, rect_p1.bottomleft, 3)
-                pygame.draw.line(screen, BLUE, rect_p2.topleft, rect_p2.bottomright, 3)
-                pygame.draw.line(screen, BLUE, rect_p2.topright, rect_p2.bottomleft, 3)
+                pygame.draw.line(screen, config.BLUE, rect_p1.topleft, rect_p1.bottomright, 3)
+                pygame.draw.line(screen, config.BLUE, rect_p1.topright, rect_p1.bottomleft, 3)
+                pygame.draw.line(screen, config.BLUE, rect_p2.topleft, rect_p2.bottomright, 3)
+                pygame.draw.line(screen, config.BLUE, rect_p2.topright, rect_p2.bottomleft, 3)
 
             if is_taken_by_p2:
-                pygame.draw.line(screen, RED, rect_p1.topleft, rect_p1.bottomright, 3)
-                pygame.draw.line(screen, RED, rect_p1.topright, rect_p1.bottomleft, 3)
-                pygame.draw.line(screen, RED, rect_p2.topleft, rect_p2.bottomright, 3)
-                pygame.draw.line(screen, RED, rect_p2.topright, rect_p2.bottomleft, 3)
+                pygame.draw.line(screen, config.RED, rect_p1.topleft, rect_p1.bottomright, 3)
+                pygame.draw.line(screen, config.RED, rect_p1.topright, rect_p1.bottomleft, 3)
+                pygame.draw.line(screen, config.RED, rect_p2.topleft, rect_p2.bottomright, 3)
+                pygame.draw.line(screen, config.RED, rect_p2.topright, rect_p2.bottomleft, 3)
 
         both_selected = selected_p1 and selected_p2
         play_button.active = both_selected
@@ -155,7 +155,7 @@ def character_selection_screen(screen, width, clock):
                 if event.type == pygame.MOUSEBUTTONDOWN and play_button.rect.collidepoint(event.pos):
                     selection_done = True
 
-        clock.tick(FPS)
+        clock.tick(config.FPS)
 
     return selected_p1, selected_p2
 

@@ -2,7 +2,7 @@ import pygame
 import random
 import map_config
 import gamelogic
-from config import *
+import config
 
 
 class EventManager:
@@ -16,11 +16,11 @@ class EventManager:
         self.map_triggers = [
             map_config.TransitionZone("Pierwsze pietro -> Wejscie WEEIA", pygame.Rect(40, 40, 185, 40), (2300, 1400)),
             map_config.TransitionZone("Pierwsze pietro -> Parter dlugi korytarz #1", pygame.Rect(968, 135, 32, 90), (2820, 2075)),
-            map_config.TransitionZone("Pierwsze pietro -> Parter dlugi korytarz #2", pygame.Rect(616, 1065, 134, 175),(2770, 3045)),
+            map_config.TransitionZone("Pierwsze pietro -> Parter dlugi korytarz #2", pygame.Rect(616, 1065, 134, 175), (2770, 3045)),
             map_config.TransitionZone("Pierwsze pietro sieci (DT i Bistro) -> Wejscie WEEIA", pygame.Rect(4790, 260, 180, 70), (4870, 370)),
-            map_config.TransitionZone("Drugie pietro sieci -> Pierwsze pietro sieci (DT i Bistro)",pygame.Rect(5705, 260, 180, 80),(4650, 135)),
-            map_config.TransitionZone("Trzecie pietro sieci -> Drugie pietro sieci",pygame.Rect(7055, 260, 185, 80), (5560, 135)),
-            map_config.TransitionZone("Czwarte pietro sieci -> Trzecie pietro sieci",pygame.Rect(8488, 260, 185, 80), (6915, 135))
+            map_config.TransitionZone("Drugie pietro sieci -> Pierwsze pietro sieci (DT i Bistro)", pygame.Rect(5705, 260, 180, 80), (4650, 135)),
+            map_config.TransitionZone("Trzecie pietro sieci -> Drugie pietro sieci", pygame.Rect(7055, 260, 185, 80), (5560, 135)),
+            map_config.TransitionZone("Czwarte pietro sieci -> Trzecie pietro sieci", pygame.Rect(8488, 260, 185, 80), (6915, 135))
             ]
 
     #static mozna generowac wraz z mapa
@@ -32,7 +32,7 @@ class EventManager:
         self.target_rooms = target_rooms
 
     def maybe_event_sala(self):
-        if random.random() < EVENT_SALA_CHANCE:
+        if random.random() < config.EVENT_SALA_CHANCE:
             return self.event_zmiana_sali()
         return None
 
@@ -49,7 +49,7 @@ class EventManager:
     def maybe_event_lekotka(self,player1,zone):
         if zone.name not in [trigger.name for trigger in self.map_triggers]:
             return None
-        if random.random() < EVENT_LEKOTKA_CHANCE:
+        if random.random() < config.EVENT_LEKOTKA_CHANCE:
             return self.event_lekotka(player1)
         return None
 

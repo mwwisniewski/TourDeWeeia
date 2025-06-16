@@ -1,23 +1,20 @@
 import pygame
 import random
 
-
-class NamedZone:
-    def __init__(self, name, area_rect):
+class MapZone:
+    def __init__(self, name, area_react):
         self.name = name
-        self.rect = area_rect
+        self.area_react = area_react
 
+class ZoneNames(MapZone):
+    pass
 
-class TargetRoom:
-    def __init__(self, name, area_rect):
-        self.name = name
-        self.rect = area_rect
+class TargetRoom(MapZone):
+    pass
 
-
-class TransitionZone:
+class TransitionZone(MapZone):
     def __init__(self, name, area_rect, target_position):
-        self.name = name
-        self.rect = area_rect
+        super().__init__(name, area_rect)
         self.target_position = target_position
 
 
@@ -148,16 +145,16 @@ def create_main_map():
         TargetRoom("408", pygame.Rect(7840, 490, 25, 50))
     ]
     named_map_zones = [
-        NamedZone("Piętro 1", pygame.Rect(0, 0, 1600, 1600)),
-        NamedZone("IMSI", pygame.Rect(25, 1900, 1600, 1600)),
-        NamedZone("Główne wejście WEEIA", pygame.Rect(1960, 0, 1600, 1600)),
-        NamedZone("Wejście przy szatni", pygame.Rect(1960, 1920, 1600, 1600)),
-        NamedZone("Piętro 1 (Bistro)", pygame.Rect(3850, 0, 1200, 1125)),
-        NamedZone("Klatka schodowa - 2 Piętro", pygame.Rect(5280, 0, 650, 650)),
-        NamedZone("Korytarz na 3 piętrze - IIS", pygame.Rect(6250, 0, 270, 1300)),
-        NamedZone("Klatka schodowa - 3 Piętro", pygame.Rect(6630, 0, 650, 650)),
-        NamedZone("Korytarz na 4 piętrze", pygame.Rect(7640, 0, 270, 1300)),
-        NamedZone("Klatka schodowa - 4 Piętro", pygame.Rect(8060, 0, 650, 650))
+        ZoneNames("Piętro 1", pygame.Rect(0, 0, 1600, 1600)),
+        ZoneNames("IMSI", pygame.Rect(25, 1900, 1600, 1600)),
+        ZoneNames("Główne wejście WEEIA", pygame.Rect(1960, 0, 1600, 1600)),
+        ZoneNames("Wejście przy szatni", pygame.Rect(1960, 1920, 1600, 1600)),
+        ZoneNames("Piętro 1 (Bistro)", pygame.Rect(3850, 0, 1200, 1125)),
+        ZoneNames("Klatka schodowa - 2 Piętro", pygame.Rect(5280, 0, 650, 650)),
+        ZoneNames("Korytarz na 3 piętrze - IIS", pygame.Rect(6250, 0, 270, 1300)),
+        ZoneNames("Klatka schodowa - 3 Piętro", pygame.Rect(6630, 0, 650, 650)),
+        ZoneNames("Korytarz na 4 piętrze", pygame.Rect(7640, 0, 270, 1300)),
+        ZoneNames("Klatka schodowa - 4 Piętro", pygame.Rect(8060, 0, 650, 650))
     ]
     # Zapisane koordynaty spawnow dla roznych pozimow:
     # Wejscie WEEIA: (2140, 275), (2060, 360), (3470, 780)

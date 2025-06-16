@@ -1,10 +1,9 @@
-import random
-import map_config
+from map_config import *
 from sprites import *
 from menu import *
 from gamelogic import RaceManager
 from menu import character_selection_screen
-import debug_config
+from debug_config import *
 
 class Game:
     def __init__(self):
@@ -15,7 +14,7 @@ class Game:
         self.MAP_HEIGHT = None
         self.MAP_WIDTH = None
 
-        self.game_map = map_config.create_main_map()
+        self.game_map = create_main_map()
         self.current_target_room = None
         self.is_current_target_room = False
         self.bg_image, self.collision_mask = self.game_map.load()
@@ -93,10 +92,10 @@ class Game:
         button_spacing = 60
 
         buttons = [
-            Button("Start", button_x, button_y_start + 0 * button_spacing, button_width, button_height, start_game),
-            Button("Ustawienia", button_x, button_y_start + 1 * button_spacing, button_width, button_height,
-                   open_settings),
-            Button("Wyjście", button_x, button_y_start + 2 * button_spacing, button_width, button_height, quit_game),
+            Menu("Start", button_x, button_y_start + 0 * button_spacing, button_width, button_height, start_game),
+            Menu("Ustawienia", button_x, button_y_start + 1 * button_spacing, button_width, button_height,
+                 open_settings),
+            Menu("Wyjście", button_x, button_y_start + 2 * button_spacing, button_width, button_height, quit_game),
         ]
 
         while intro:
@@ -158,7 +157,7 @@ class Game:
                     self.race.events.maybe_event_lekotka(self.player1,zone)
                     self.player1.rect.topleft = new_pos
                     if self.debug_mode:
-                        debug_config.log_player_transition("Gracz 1", zone.name, new_pos)
+                        log_player_transition("Gracz 1", zone.name, new_pos)
                     break
 
         if self.player2:
@@ -168,12 +167,12 @@ class Game:
                     self.race.events.maybe_event_lekotka(self.player2,zone)
                     self.player2.rect.topleft = new_pos
                     if self.debug_mode:
-                        debug_config.log_player_transition("Gracz 2", zone.name, new_pos)
+                        log_player_transition("Gracz 2", zone.name, new_pos)
                     break
 
         if self.debug_mode:
-            debug_config.log_player_goal_arrival(self, self.player1, "Gracz 1")
-            debug_config.log_player_goal_arrival(self, self.player2, "Gracz 2")
+            log_player_goal_arrival(self, self.player1, "Gracz 1")
+            log_player_goal_arrival(self, self.player2, "Gracz 2")
 
         if self.player1:
             for named_zone in self.game_map.named_zones:
@@ -236,14 +235,14 @@ class Game:
             self.right_view.blit(text_surf_p2, text_rect_p2)
 
         if self.debug_mode:
-            debug_config.draw_debug_visuals(
+            draw_debug_visuals(
                 self.left_view,
                 self.game_map,
                 self.current_target_room,
                 self.camera_left_offset,
                 self.zoom
             )
-            debug_config.draw_debug_visuals(
+            draw_debug_visuals(
                 self.right_view,
                 self.game_map,
                 self.current_target_room,
