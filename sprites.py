@@ -1,5 +1,5 @@
 import pygame
-from config import *
+import config
 import os
 
 
@@ -7,7 +7,7 @@ class Player(pygame.sprite.Sprite):
     def __init__(self, x, y, control_type, color_or_path):
         super().__init__()
         self.control_type = control_type
-        self.speed = PLAYER_SPEED
+        self.speed = config.PLAYER_SPEED
         self.rect = pygame.Rect(x, y, 28, 28)
         self.freeze_until = 0
         self.slowed_until = 0
@@ -53,11 +53,11 @@ class Player(pygame.sprite.Sprite):
         if now < self.freeze_until:
             return
         if now > self.slowed_until:
-            self.speed = PLAYER_SPEED
+            self.speed = config.PLAYER_SPEED
 
         dx, dy = 0, 0
 
-        if self.control_type == CONTROL_TYPE_WSAD:
+        if self.control_type == config.CONTROL_TYPE_WSAD:
             if keys[pygame.K_w]:
                 dy -= self.speed
                 self.direction = "up"
@@ -70,7 +70,7 @@ class Player(pygame.sprite.Sprite):
             if keys[pygame.K_d]:
                 dx += self.speed
                 self.direction = "right"
-        elif self.control_type == CONTROL_TYPE_ARROWS:
+        elif self.control_type == config.CONTROL_TYPE_ARROWS:
             if keys[pygame.K_UP]:
                 dy -= self.speed
                 if self.uses_sprites:
