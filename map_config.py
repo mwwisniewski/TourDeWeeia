@@ -1,16 +1,20 @@
 import pygame
 import random
 
+
 class MapZone:
-    def __init__(self, name, area_react):
+    def __init__(self, name, area_rect):
         self.name = name
-        self.area_react = area_react
+        self.rect = area_rect
+
 
 class ZoneNames(MapZone):
     pass
 
+
 class TargetRoom(MapZone):
     pass
+
 
 class TransitionZone(MapZone):
     def __init__(self, name, area_rect, target_position):
