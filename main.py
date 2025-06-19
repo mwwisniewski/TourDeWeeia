@@ -4,6 +4,8 @@ from menu import *
 from gamelogic import RaceManager
 from menu import character_selection_screen
 from debug_config import *
+from config import *
+
 
 class Game:
     def __init__(self):
@@ -28,7 +30,6 @@ class Game:
         self.HEIGHT = HEIGHT
         self.screen = pygame.display.set_mode((self.WIDTH, self.HEIGHT), pygame.HWSURFACE | pygame.DOUBLEBUF)
         pygame.display.set_caption("Tour de Weeia")
-
         self.clock = pygame.time.Clock()
         self.running = True
         self.camera_left_offset = pygame.Vector2(0, 0)
@@ -39,7 +40,7 @@ class Game:
         self.player1 = None  # Zeby pozbyc sie Unresolved reference
         self.player2 = None
         self.race = None
-        self.debug_mode = DEBUG  # DO TESTOW POTEM ZMIENIC NA FALSE LUB NONE!! (POKAZUJE STREFY PRZEJSC, STREFY SAL ORAZ FPSY)
+        self.debug_mode = config.DEBUG  # DO TESTOW POTEM ZMIENIC NA FALSE LUB NONE!! (POKAZUJE STREFY PRZEJSC, STREFY SAL ORAZ FPSY)
         self.printed_destination = True
         if self.debug_mode:
             self.printed_arrived = False
@@ -49,8 +50,53 @@ class Game:
         self.player2_current_zone_name = self.default_zone_name
         self.zone_font = pygame.font.SysFont("arial", 20, bold=True)
         self.game_info_font = pygame.font.SysFont("arial", 24, bold=True)
+        self.notification_font = pygame.font.SysFont("arial", 30, bold=True)
+        self.target_info_font = pygame.font.SysFont("arial", 18, bold=True)
         self.zone_text_color = BLACK
         self.zone_text_bg = None
+        self.active_notifications = []
+
+    def add_notification(self, message, duration_seconds, target_player=None, text_color=BLACK, bg_color=None,
+                         position_topleft=None, position_center=None):
+        # target_player global (srodek ekranu) lub None (ale ustwiajcie global), lub player1 (lewo), player2(prawo)
+        # position_topleft i position_center maja priorytet nad target_player!
+        text_surf = self.notification_font.render(message, True, text_color)
+        padding = 10
+        bg_width = text_surf.get_width() + 2 * padding
+        bg_height = text_surf.get_height() + 2 * padding
+        bg_surface = pygame.Surface((bg_width, bg_height), pygame.SRCALPHA)
+        if bg_color:
+            bg_surface.fill(bg_color)
+
+        text_rect = text_surf.get_rect(center=(bg_width // 2, bg_height // 2))
+        bg_surface.blit(text_surf, text_rect)
+        final_rect = bg_surface.get_rect()
+        if position_topleft:
+            final_rect.topleft = position_topleft
+        elif position_center:
+            final_rect.center = position_center
+        else:
+            default_top_y = 70
+            if target_player is None or target_player == "global":
+                final_rect.centerx = self.WIDTH // 2
+                final_rect.top = default_top_y
+            elif target_player == "player1":
+                final_rect.centerx = self.WIDTH // 4
+                final_rect.top = default_top_y
+            elif target_player == "player2":
+                final_rect.centerx = self.WIDTH * 3 // 4
+                final_rect.top = default_top_y
+            else:  # dla pewnosci zeby nie bylo bledow
+                final_rect.centerx = self.WIDTH // 2
+                final_rect.top = default_top_y
+
+        end_time = pygame.time.get_ticks() + duration_seconds * 1000
+
+        self.active_notifications.append({
+            "surface": bg_surface,
+            "rect": final_rect,
+            "end_time": end_time
+        })
 
     def intro_screen(self):
         intro = True
@@ -69,9 +115,8 @@ class Game:
             self.player2 = Player(spawn_x2, spawn_y2, CONTROL_TYPE_ARROWS, selected_p2)
             self.all_sprites.add(self.player1)
             self.all_sprites.add(self.player2)
-            self.race = RaceManager(self.player1, self.player2)
+            self.race = RaceManager(self.player1, self.player2, self)
             self.race.events.get_target_rooms(self.game_map.target_rooms)
-
 
             intro = False
 
@@ -128,7 +173,8 @@ class Game:
                         self.printed_arrived = False
 
                 self.is_current_target_room = False
-                print(f"WYLOSOWANA SALA: {self.current_target_room.name}")
+                self.add_notification(f"Nowy cel: Sala {self.current_target_room.name}", 6, target_player="player1")
+                self.add_notification(f"Nowy cel: Sala {self.current_target_room.name}", 6, target_player="player2")
                 self.update()
                 self.draw()
                 self.race.events.get_current_target_room(self.current_target_room)
@@ -154,7 +200,7 @@ class Game:
             for zone in self.game_map.transition_zones:
                 if zone.rect.colliderect(self.player1.rect):
                     new_pos = zone.target_position
-                    self.race.events.maybe_event_lekotka(self.player1,zone)
+                    self.race.events.maybe_event_lekotka(self.player1, zone)
                     self.player1.rect.topleft = new_pos
                     if self.debug_mode:
                         log_player_transition("Gracz 1", zone.name, new_pos)
@@ -164,7 +210,7 @@ class Game:
             for zone in self.game_map.transition_zones:
                 if zone.rect.colliderect(self.player2.rect):
                     new_pos = zone.target_position
-                    self.race.events.maybe_event_lekotka(self.player2,zone)
+                    self.race.events.maybe_event_lekotka(self.player2, zone)
                     self.player2.rect.topleft = new_pos
                     if self.debug_mode:
                         log_player_transition("Gracz 2", zone.name, new_pos)
@@ -189,11 +235,16 @@ class Game:
             if goal is not None:
                 self.current_target_room = goal
 
+        current_time = pygame.time.get_ticks()
+        self.active_notifications = [n for n in self.active_notifications if current_time < n["end_time"]]
+
     def draw(self):
         self.left_view.fill(GAME_BACKGROUND_COLOR)
         self.right_view.fill(GAME_BACKGROUND_COLOR)
 
         if not self.player1:
+            for notification in self.active_notifications:
+                self.screen.blit(notification["surface"], notification["rect"])
             pygame.display.flip()
             return
 
@@ -242,13 +293,14 @@ class Game:
                 self.camera_left_offset,
                 self.zoom
             )
-            draw_debug_visuals(
-                self.right_view,
-                self.game_map,
-                self.current_target_room,
-                self.camera_right_offset,
-                self.zoom
-            )
+            if self.player2:
+                draw_debug_visuals(
+                    self.right_view,
+                    self.game_map,
+                    self.current_target_room,
+                    self.camera_right_offset,
+                    self.zoom
+                )
 
         self.screen.blit(self.left_view, (0, 0))
         if self.player2:
@@ -289,24 +341,39 @@ class Game:
             pygame.display.set_caption(
                 f"FPS: {self.clock.get_fps():.2f}")
 
+        target_text_str = f"Cel: {self.current_target_room.name}"
+        text_surf = self.target_info_font.render(target_text_str, True, self.zone_text_color)
+
+        if self.player1 and self.current_target_room:
+            rect_p1_target = text_surf.get_rect()
+            rect_p1_target.bottomleft = (15, self.HEIGHT - 15)
+            self.screen.blit(text_surf, rect_p1_target)
+
+        if self.player2 and self.current_target_room:
+            rect_p2_target = text_surf.get_rect()
+            rect_p2_target.bottomright = (self.WIDTH - 15, self.HEIGHT - 15)
+            self.screen.blit(text_surf, rect_p2_target)
+
+        for notification in self.active_notifications:
+            self.screen.blit(notification["surface"], notification["rect"])
+
         pygame.display.flip()
 
     def reset_game(self):
-        self.race.player1points=0
-        self.race.player2points=0
-        self.race.globaltimer=0
-        self.race.player1times=[0,0,0]
-        self.race.player2times=[0,0,0]
+        self.race.player1points = 0
+        self.race.player2points = 0
+        self.race.globaltimer = 0
+        self.race.player1times = [0, 0, 0]
+        self.race.player2times = [0, 0, 0]
         self.race.player1_finished = False
         self.race.player2_finished = False
         self.race.round_index = 0
         self.race.game_over = False
         self.race.goal_rect = None
-        self.race.round_active= False
-        self.race.player1_finished = False
-        self.race.player2_finished = False
-        print("----------RESET GRY----------")
-        self.draw()
+        self.race.round_active = False
+        self.active_notifications = []
+        self.add_notification("Nastąpił restart gry!", 5, target_player="global", position_center=(800, 800))
+
 
 if __name__ == "__main__":
     game = Game()

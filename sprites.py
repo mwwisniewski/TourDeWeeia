@@ -36,7 +36,7 @@ class Player(pygame.sprite.Sprite):
                     filename = f"{self.sprite_folder}/{state}_{direction}_{i}.png"
                     if os.path.isfile(filename):
                         img = pygame.image.load(filename).convert_alpha()
-                        img = pygame.transform.scale(img, (35, 35)) # rozmiar sprite'a
+                        img = pygame.transform.scale(img, (35, 35))  # rozmiar sprite'a
                         frames.append(img)
                 self.sprites[f"{state}_{direction}"] = frames
 
@@ -51,9 +51,13 @@ class Player(pygame.sprite.Sprite):
     def update(self, keys, collision_mask):
         now = pygame.time.get_ticks()
         if now < self.freeze_until:
+            self.current_animation = "idle"
+            if self.uses_sprites:
+                self.update_animation()
             return
-        if now > self.slowed_until:
+        if self.slowed_until > 0 and now >= self.slowed_until:
             self.speed = config.PLAYER_SPEED
+            self.slowed_until = 0
 
         dx, dy = 0, 0
 
