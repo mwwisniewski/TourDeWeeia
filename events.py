@@ -1,9 +1,7 @@
-from time import gmtime
-
 import pygame
 import random
 import map_config
-import config
+from config import *
 
 
 class EventManager:
@@ -16,7 +14,7 @@ class EventManager:
         self.target_rooms = None
         self.target_room = None
         self.new_target_room = None
-
+        self.portier_trigger = pygame.Rect(3170,2990,95,255)
         self.map_triggers = [
             map_config.TransitionZone("Pierwsze pietro -> Wejscie WEEIA", pygame.Rect(40, 40, 185, 40), (2300, 1400)),
             map_config.TransitionZone("Pierwsze pietro -> Parter dlugi korytarz #1", pygame.Rect(968, 135, 32, 90),
@@ -32,6 +30,19 @@ class EventManager:
             map_config.TransitionZone("Czwarte pietro sieci -> Trzecie pietro sieci", pygame.Rect(8488, 260, 185, 80),
                                       (6915, 135))
         ]
+        self.active_energols = []
+        self.energol_spawn_points = [
+            pygame.Rect(100,300,ENE_WIDTH,ENE_HEIGHT),
+            pygame.Rect(1320, 290, ENE_WIDTH,ENE_HEIGHT),
+            pygame.Rect(1330, 1500, ENE_WIDTH,ENE_HEIGHT),
+            pygame.Rect(3380, 1020, ENE_WIDTH,ENE_HEIGHT),
+            pygame.Rect(3340,2610, ENE_WIDTH,ENE_HEIGHT),
+            pygame.Rect(1470,2000, ENE_WIDTH,ENE_HEIGHT),
+            pygame.Rect(4000,380, ENE_WIDTH,ENE_HEIGHT),
+            pygame.Rect(4000,500, ENE_WIDTH,ENE_HEIGHT),
+            pygame.Rect(6330,110, ENE_WIDTH,ENE_HEIGHT),
+            pygame.Rect(7730,110, ENE_WIDTH,ENE_HEIGHT),
+        ]
 
     # static mozna generowac wraz z mapa
     # dynamic podczas gry
@@ -42,7 +53,7 @@ class EventManager:
         self.target_rooms = target_rooms
 
     def maybe_event_sala(self):
-        if random.random() < config.EVENT_SALA_CHANCE:
+        if random.random() < EVENT_SALA_CHANCE:
             return self.event_zmiana_sali()
         return None
 
@@ -59,10 +70,13 @@ class EventManager:
     def maybe_event_lekotka(self, player1, zone):
         if zone.name not in [trigger.name for trigger in self.map_triggers]:
             return None
-        if random.random() < config.EVENT_LEKOTKA_CHANCE:
+        if random.random() < EVENT_LEKOTKA_CHANCE:
             return self.event_lekotka(player1)
         return None
 
+    #
+    # obecnie lekotka canceluje energola nw czy tak zostawiamy czy cos z tym zrobic
+    #
     def event_lekotka(self, player):  # static
         slow_duration_seconds = 8
         freeze_duration_seconds = 2
@@ -72,14 +86,14 @@ class EventManager:
         if player == self.player1:
             target_player_id = "player1"
             self.player1.freeze(freeze_duration_seconds * 1000)
-            self.player1.speed = config.PLAYER_SPEED_SLOWED
+            self.player1.speed = PLAYER_SPEED_SLOWED
             self.player1.brokenLeg = True
             self.player1.slow_until(slow_duration_seconds * 1000)
 
         elif player == self.player2:
             target_player_id = "player2"
             self.player2.freeze(freeze_duration_seconds * 1000)
-            self.player2.speed = config.PLAYER_SPEED_SLOWED
+            self.player2.speed = PLAYER_SPEED_SLOWED
             self.player2.brokenLeg = True
             self.player2.slow_until(slow_duration_seconds * 1000)
 
@@ -87,26 +101,21 @@ class EventManager:
             self.game_ref.add_notification(message, duration_seconds=display_duration_seconds,
                                            target_player=target_player_id)
 
-    ############################################################################## do zrobienia (moze)
-
-    def event_energol(self):  # static/dynamic nw
-        print("⚡ Rozdają energetyki! Masz bonus do prędkości.")
-
-        if self.player.brokenLeg:
-            self.player.speed = 3
-        else:
-            self.player.speed = 6
+    def spawn_energols(self):  # static/dynamic nw
+        while len(self.active_energols) < ENERGOL_UNIT_LIMIT:
+            energol = random.choice(self.energol_spawn_points)
+            if energol not in self.active_energols:
+                self.active_energols.append(energol)
 
     def event_portier(self):  # static
-        print("🚷 Portier cię woła – podejdź do niego.")
+        if random.random() < EVENT_PORTIER_CHANCE:
+            self.player2.kurtka = True
+            self.game_ref.add_notification("musisz odniesc kurtke do szatni!!!",5,target_player="player1")
+        else:
+            self.player2.kurtka = False
 
-        def zapytaj_o_kurtke():
-            print("🧥 Portier: 'Zostawiasz kurtkę w szatni?' [T/N]")
-            self.awaiting_kurtka_answer = True
-
-        self.player.forceMove(0, 0, on_arrival=zapytaj_o_kurtke)
-        self.player.freeze(4000)
-        # chyba git
-
-    def event_remont(self):  # static
-        print("🚧 Remont! To przejście jest zablokowane.")
+        if random.random() < EVENT_PORTIER_CHANCE:
+            self.player1.kurtka = True
+            self.game_ref.add_notification("musisz odniesc kurtke do szatni!!!",5,target_player="player2")
+        else:
+            self.player2.kurtka = False
