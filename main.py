@@ -76,7 +76,8 @@ class Game:
         self.sounds['success'] = pygame.mixer.Sound("sounds/success_opcja2.wav")
         self.sounds['lekotka_ouch'] = pygame.mixer.Sound("sounds/ouch_opcja1.wav")
         self.sounds['bone_crack'] = pygame.mixer.Sound("sounds/bone_crack.wav")
-
+        self.sounds['bone_crack'] = pygame.mixer.Sound("sounds/bone_crack.wav")
+        #self.sounds['energizer'] = pygame.mixer.Sound("sounds/energizer.wav")
 
     def add_notification(self, message, duration_seconds, target_player=None, text_color=BLACK, bg_color=None,
                          position_topleft=None, position_center=None, pos_y_diff=0, font_type=None,
