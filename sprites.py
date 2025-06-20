@@ -11,6 +11,9 @@ class Player(pygame.sprite.Sprite):
         self.rect = pygame.Rect(x, y, 28, 28)
         self.freeze_until = 0
         self.slowed_until = 0
+        self.faster_until = 0
+        self.kurtka= False
+
 
         self.uses_sprites = isinstance(color_or_path, str)
         if self.uses_sprites:
@@ -55,9 +58,13 @@ class Player(pygame.sprite.Sprite):
             if self.uses_sprites:
                 self.update_animation()
             return
-        if self.slowed_until > 0 and now >= self.slowed_until:
+
+        if 0 < self.slowed_until <= now:
             self.speed = config.PLAYER_SPEED
             self.slowed_until = 0
+        if 0 < self.faster_until <= now:
+            self.speed = config.PLAYER_SPEED
+            self.faster_until = 0
 
         dx, dy = 0, 0
 
@@ -120,6 +127,13 @@ class Player(pygame.sprite.Sprite):
 
     def slow_until(self, duration_ms):
         self.slowed_until = pygame.time.get_ticks() + duration_ms
+
+    def fast_boy(self,duration_ms):
+        now = pygame.time.get_ticks()
+        if self.faster_until:
+            self.faster_until += duration_ms
+        else:
+            self.faster_until = now + duration_ms
 
     def update_player_position(self, x, y):
         self.rect.topleft = (x, y)

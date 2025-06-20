@@ -1,3 +1,6 @@
+import pygame.image
+
+import map_config
 from map_config import *
 from sprites import *
 from menu import *
@@ -56,8 +59,11 @@ class Game:
         self.zone_text_color = BLACK
         self.zone_text_bg = None
         self.active_notifications = []
+        self.notified_flag = False
+        self.energolimg = pygame.image.load("img/grafika power-up.png")
         self.sounds = {}
         self._load_sounds()
+
 
     def _load_sounds(self):
         self.menu_music_path = "sounds/menu_background_opcja1.mp3"
@@ -71,27 +77,58 @@ class Game:
         self.sounds['lekotka_ouch'] = pygame.mixer.Sound("sounds/ouch_opcja1.wav")
         self.sounds['bone_crack'] = pygame.mixer.Sound("sounds/bone_crack.wav")
 
+
     def add_notification(self, message, duration_seconds, target_player=None, text_color=BLACK, bg_color=None,
-                         position_topleft=None, position_center=None):
+                         position_topleft=None, position_center=None, pos_y_diff=0, font_type=None,
+                         outline_color=None, outline_thickness=1):  # NOWE PARAMETRY
         # target_player global (srodek ekranu) lub None (ale ustwiajcie global), lub player1 (lewo), player2(prawo)
         # position_topleft i position_center maja priorytet nad target_player!
-        text_surf = self.notification_font.render(message, True, text_color)
+        # pos_y_diff obniza napis w y, bg color nie ma co ruszac bo to prostokat,
+        # a przynajmniej tak bylo jak ostatnio sprawdzalem
+
+        # dla filipa nr2: uzywaj message, duration, target, text color i outline color ew. pos y,
+        # outline thickness, font type(wielkosc, chyba ze zmienisz tez rodzaj (tam wyzej ^))
+
+        # Wybór czcionki
+        if font_type == "zone":
+            font = self.zone_font           #20
+        elif font_type == "game":
+            font = self.game_info_font      #24
+        elif font_type == "target":
+            font = self.target_info_font    #18
+        else:
+            font = self.notification_font   #30
+
+        text_surf = font.render(message, True, text_color)
         padding = 10
         bg_width = text_surf.get_width() + 2 * padding
         bg_height = text_surf.get_height() + 2 * padding
         bg_surface = pygame.Surface((bg_width, bg_height), pygame.SRCALPHA)
+
         if bg_color:
             bg_surface.fill(bg_color)
 
-        text_rect = text_surf.get_rect(center=(bg_width // 2, bg_height // 2))
-        bg_surface.blit(text_surf, text_rect)
+        text_rect_on_bg = text_surf.get_rect(center=(bg_width // 2, bg_height // 2))
+
+        # obramowka dla tekstu
+        if outline_color and outline_thickness > 0:
+            outline_surf = font.render(message, True, outline_color)
+            for dx in range(-outline_thickness, outline_thickness + 1):
+                for dy in range(-outline_thickness, outline_thickness + 1):
+                    if dx == 0 and dy == 0:  # Nie rysuj na pozycji głównego tekstu
+                        continue
+                    outline_pos = (text_rect_on_bg.x + dx, text_rect_on_bg.y + dy)
+                    bg_surface.blit(outline_surf, outline_pos)
+
+        bg_surface.blit(text_surf, text_rect_on_bg)
+
         final_rect = bg_surface.get_rect()
         if position_topleft:
             final_rect.topleft = position_topleft
         elif position_center:
             final_rect.center = position_center
         else:
-            default_top_y = 70
+            default_top_y = 70 + pos_y_diff
             if target_player is None or target_player == "global":
                 final_rect.centerx = self.WIDTH // 2
                 final_rect.top = default_top_y
@@ -200,6 +237,11 @@ class Game:
                 self.draw()
                 self.race.events.get_current_target_room(self.current_target_room)
                 self.race.start_round(self.current_target_room.rect)
+                if self.game_map.path != DEFAULT_MAP and not self.notified_flag:
+                    self.add_notification("UWAGA!! NA WYDZIALE MAMY REMONT, MOZLIWE ZABLOKOWANE PRZEJSCIA", 6,
+                                          target_player="global", pos_y_diff=100, font_type="game",
+                                          outline_color=BLACK, text_color=WHITE)
+                    self.notified_flag = True
             self.clock.tick(FPS)
 
     def handle_events(self):
@@ -256,6 +298,11 @@ class Game:
             if goal is not None:
                 self.current_target_room = goal
 
+        if self.race.energol_picked_up1:
+            self.add_notification("Znajdujesz energetyka!",4,target_player="player1",font_type="game")
+        if self.race.energol_picked_up2:
+            self.add_notification("Znajdujesz energetyka!",4,target_player="player2",font_type="game")
+
         current_time = pygame.time.get_ticks()
         self.active_notifications = [n for n in self.active_notifications if current_time < n["end_time"]]
 
@@ -281,6 +328,24 @@ class Game:
         self.left_view.blit(self.scaled_bg, (-self.camera_left_offset.x, -self.camera_left_offset.y))
         if self.player2:
             self.right_view.blit(self.scaled_bg, (-self.camera_right_offset.x, -self.camera_right_offset.y))
+
+        scaled_target_width = int(ENE_WIDTH * self.zoom)
+        scaled_target_height = int(ENE_HEIGHT * self.zoom)
+
+        scaled_energol_image_to_blit = pygame.transform.smoothscale(
+            self.energolimg, (scaled_target_width, scaled_target_height))
+
+        for current_energol_rect in self.race.events.active_energols:
+            energol_map_pos = pygame.Vector2(current_energol_rect.topleft)
+
+            # Rysowanie na lewym widoku (dla gracza 1)
+            scaled_pos_left_energol = (energol_map_pos * self.zoom) - self.camera_left_offset
+            self.left_view.blit(scaled_energol_image_to_blit, scaled_pos_left_energol)
+
+            # Rysowanie na prawym widoku, jeśli istnieje gracz 2
+            if self.player2:
+                scaled_pos_right_energol = (energol_map_pos * self.zoom) - self.camera_right_offset
+                self.right_view.blit(scaled_energol_image_to_blit, scaled_pos_right_energol)
 
         for sprite in self.all_sprites:
             scaled_img = pygame.transform.smoothscale(
@@ -393,6 +458,12 @@ class Game:
         self.race.goal_rect = None
         self.race.round_active = False
         self.active_notifications = []
+        temp = self.game_map.path
+        self.game_map.path, self.game_map.mask_path = map_config.get_random_map()
+        if self.game_map.path != temp:
+            self.bg_image, self.collision_mask = self.game_map.load()
+            self.MAP_WIDTH, self.MAP_HEIGHT = self.bg_image.get_size()
+        self.notified_flag = False
         self.add_notification("Nastąpił restart gry!", 5, target_player="global", position_center=(800, 800))
 
 

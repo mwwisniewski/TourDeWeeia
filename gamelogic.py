@@ -12,6 +12,9 @@ class RaceManager:
         self.player1points = 0
         self.player2points = 0
         self.globaltimer = 0
+        self.energol_picked_up1=False
+        self.energol_picked_up2=False
+
 
         self.player1times = [0, 0, 0]
         self.player2times = [0, 0, 0]
@@ -26,6 +29,7 @@ class RaceManager:
 
     def start_round(self, goal_rect):
         self.goal_rect = goal_rect
+        self.events.event_portier()
         round_start_delay_ms = 1000
         if self.game_instance:
             self.game_instance.add_notification(f"Runda {self.round_index + 1}!", 1, target_player="global")
@@ -66,6 +70,7 @@ class RaceManager:
         self.round_active = True
         self.player1_finished = False
         self.player2_finished = False
+
         pygame.event.clear()
 
     def update(self):
@@ -74,13 +79,48 @@ class RaceManager:
 
         now = pygame.time.get_ticks()
         new_goal_to_return = None
+        self.events.spawn_energols()
+        self.energol_picked_up1=False
+        self.energol_picked_up2=False
 
-        if not self.player1_finished and self.goal_rect.colliderect(self.player1.rect):
-            if not self.player1_finished and not self.player2_finished:
-                potential_new_goal = self.events.maybe_event_sala()
-                if potential_new_goal:
-                    self.goal_rect = potential_new_goal.rect
-                    new_goal_to_return = potential_new_goal
+        for current_energol in self.events.active_energols:
+            if current_energol.colliderect(self.player1.rect):
+                self.player1.speed +=2
+                self.player1.fast_boy(6000)
+                self.events.active_energols.remove(current_energol)
+                self.energol_picked_up1=True
+
+            if current_energol.colliderect(self.player2.rect):
+                self.player2.speed +=2
+                self.player2.fast_boy(6000)
+                self.events.active_energols.remove(current_energol)
+                self.energol_picked_up2=True
+
+        if self.player1.kurtka:
+            if self.events.portier_trigger.colliderect(self.player1.rect):
+                self.player1.kurtka = False
+                self.game_instance.add_notification("odkladasz kurtke",2,target_player="player1")
+
+        if self.player2.kurtka:
+            if self.events.portier_trigger.colliderect(self.player2.rect):
+                self.player2.kurtka = False
+                self.game_instance.add_notification("odkladasz kurtke",2,target_player="player2")
+
+        txt = "Zapomniales odniesc kurtki baranie!!!"
+        if self.goal_rect.colliderect(self.player1.rect):
+            if not self.player1_finished and not self.player1.kurtka:
+                if not self.player1_finished and not self.player2_finished:
+                    potential_new_goal = self.events.maybe_event_sala()
+                    if potential_new_goal:
+                        self.goal_rect = potential_new_goal.rect
+                        new_goal_to_return = potential_new_goal
+                    else:
+                        self.player1_finished = True
+                        self.player1times[self.round_index] = now - self.globaltimer
+                        finish_message_p1 = f"Gracz 1 dotarł do celu w {self.player1times[self.round_index] / 1000:.2f}s"
+                        if self.game_instance:
+                            self.game_instance.add_notification(finish_message_p1, 3, target_player="player1",
+                                                                position_topleft=(200, 700))
                 else:
                     self.player1_finished = True
                     self.game_instance.sounds['success'].play()
@@ -89,16 +129,11 @@ class RaceManager:
                     if self.game_instance:
                         self.game_instance.add_notification(finish_message_p1, 3, target_player="player1",
                                                             position_topleft=(200, 700))
-            else:
-                self.player1_finished = True
-                self.player1times[self.round_index] = now - self.globaltimer
-                finish_message_p1 = f"Gracz 1 dotarł do celu w {self.player1times[self.round_index] / 1000:.2f}s"
-                if self.game_instance:
-                    self.game_instance.add_notification(finish_message_p1, 3, target_player="player1",
-                                                        position_topleft=(200, 700))
+            elif not self.player1_finished and self.player1.kurtka:
+                self.game_instance.add_notification(txt,target_player="player1",duration_seconds=3)
 
-        if not self.player2_finished and self.goal_rect.colliderect(self.player2.rect):
-            if new_goal_to_return is None:
+        if self.goal_rect.colliderect(self.player2.rect):
+            if not self.player2_finished and not self.player2.kurtka:
                 if not self.player1_finished and not self.player2_finished:
                     potential_new_goal = self.events.maybe_event_sala()
                     if potential_new_goal:
@@ -119,6 +154,9 @@ class RaceManager:
                     if self.game_instance:
                         self.game_instance.add_notification(finish_message_p2, 3, target_player="player2",
                                                             position_topleft=(1000, 700))
+            elif not self.player2_finished and self.player2.kurtka:
+                self.game_instance.add_notification(txt,target_player="player2",duration_seconds=3)
+
         if new_goal_to_return:
             self.player1_finished = False
             self.player2_finished = False
@@ -131,6 +169,8 @@ class RaceManager:
     def end_round(self):
         t1 = self.player1times[self.round_index]
         t2 = self.player2times[self.round_index]
+
+        self.reset_players_state()
 
         if t1 < t2:
             self.player1points += 1
@@ -157,6 +197,9 @@ class RaceManager:
             self.game_instance.add_notification(final_message, 3, target_player="global")
 
         # to dodac do notyfikacji na mega dlugi czas na ekran koncowy jak zostanie zrobiony
+
+        # po prostu dodac do notyfikacji i zostawiamy wolne chodzenie ok? ok
+
         print(f"Gracz 1: {self.player1points} pkt\n"
               f"\tCzasy: \n"
               f"runda 1: {self.player1times[0] / 1000} s\n"
@@ -176,3 +219,11 @@ class RaceManager:
             self.game_instance.sounds['game_win'].play()
         else:
             print("🤝 Remis!")
+
+    def reset_players_state(self):
+        self.player2.freezed_until = 0
+        self.player1.freezed_until = 0
+        self.player2.slowed_until = 0
+        self.player1.freezed_until = 0
+        self.player2.faster_until = 0
+        self.player1.faster_until = 0
