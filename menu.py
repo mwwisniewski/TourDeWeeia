@@ -28,9 +28,11 @@ class Menu:
     def handle_event(self, event):
         if self.active and event.type == pygame.MOUSEBUTTONDOWN and self.rect.collidepoint(event.pos):
             self.callback()
+            return True
+        return False
 
 
-def character_selection_screen(screen, width, clock):
+def character_selection_screen(game_instance, screen, width, clock):
     selection_done = False
     selected_p1 = None
     selected_p2 = None
@@ -129,30 +131,37 @@ def character_selection_screen(screen, width, clock):
                 # Gracz 1 — WSAD + SPACJA
                 if event.key == pygame.K_w:
                     p1_index = (p1_index - 1) % len(character_options)
+                    game_instance.sounds['menu_click'].play()
                 elif event.key == pygame.K_s:
                     p1_index = (p1_index + 1) % len(character_options)
+                    game_instance.sounds['menu_click'].play()
                 elif event.key == pygame.K_SPACE:
                     selected_path = character_options[p1_index][0]
                     if selected_p1 == selected_path:
                         selected_p1 = None
                     elif selected_path != selected_p2:
                         selected_p1 = selected_path
+                    game_instance.sounds['menu_click'].play()
 
                 # Gracz 2 — STRZAŁKI + ENTER
                 elif event.key == pygame.K_UP:
                     p2_index = (p2_index - 1) % len(character_options)
+                    game_instance.sounds['menu_click'].play()
                 elif event.key == pygame.K_DOWN:
                     p2_index = (p2_index + 1) % len(character_options)
+                    game_instance.sounds['menu_click'].play()
                 elif event.key == pygame.K_RETURN:
                     selected_path = character_options[p2_index][0]
                     if selected_p2 == selected_path:
                         selected_p2 = None
                     elif selected_path != selected_p1:
                         selected_p2 = selected_path
+                    game_instance.sounds['menu_click'].play()
 
             if selected_p1 and selected_p2:
-                play_button.handle_event(event)
-                if event.type == pygame.MOUSEBUTTONDOWN and play_button.rect.collidepoint(event.pos):
+                if play_button.handle_event(event):
+                    game_instance.sounds['menu_click'].play()
+                    pygame.mixer.music.fadeout(500)
                     selection_done = True
 
         clock.tick(config.FPS)
