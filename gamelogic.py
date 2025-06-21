@@ -38,6 +38,10 @@ class RaceManager:
         self.player1.freeze(round_start_delay_ms * 4)
         self.player2.freeze(round_start_delay_ms * 4)
         pygame.time.wait(round_start_delay_ms)
+
+        if self.game_instance:
+            self.game_instance.sounds['countdown'].play()
+
         if self.game_instance:
             self.game_instance.add_notification("3!", 1, target_player="global", text_color=config.RED)
             self.game_instance.update()
@@ -57,6 +61,11 @@ class RaceManager:
             self.game_instance.add_notification("START!", 1, target_player="global", text_color=config.GREEN)
             self.game_instance.update()
             self.game_instance.draw()
+
+            pygame.mixer.music.load(self.game_instance.race_music_path)
+            pygame.mixer.music.set_volume(0.3)
+            pygame.mixer.music.play(loops=-1)
+
         self.globaltimer = pygame.time.get_ticks()
         self.round_active = True
         self.player1_finished = False
@@ -114,6 +123,7 @@ class RaceManager:
                                                                 position_topleft=(200, 700))
                 else:
                     self.player1_finished = True
+                    self.game_instance.sounds['success'].play()
                     self.player1times[self.round_index] = now - self.globaltimer
                     finish_message_p1 = f"Gracz 1 dotarł do celu w {self.player1times[self.round_index] / 1000:.2f}s"
                     if self.game_instance:
@@ -131,6 +141,7 @@ class RaceManager:
                         new_goal_to_return = potential_new_goal
                     else:
                         self.player2_finished = True
+                        self.game_instance.sounds['success'].play()
                         self.player2times[self.round_index] = now - self.globaltimer
                         finish_message_p2 = f"Gracz 2 dotarł do celu w {self.player2times[self.round_index] / 1000:.2f}s"
                         if self.game_instance:
@@ -202,8 +213,10 @@ class RaceManager:
 
         if self.player1points > self.player2points:
             print("🥇 Wygrywa Gracz 1!")
+            self.game_instance.sounds['game_win'].play()
         elif self.player2points > self.player1points:
             print("🥇 Wygrywa Gracz 2!")
+            self.game_instance.sounds['game_win'].play()
         else:
             print("🤝 Remis!")
 

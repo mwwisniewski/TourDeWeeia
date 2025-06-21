@@ -65,6 +65,7 @@ class EventManager:
         message = f"Sala zajęć została zmieniona - nowy cel: Sala - {self.new_target_room.name}"
         if self.game_ref:
             self.game_ref.add_notification(message, duration_seconds=4, target_player="global")
+            self.game_ref.sounds['room_change'].play()
         return self.new_target_room
 
     def maybe_event_lekotka(self, player1, zone):
@@ -100,6 +101,8 @@ class EventManager:
         if self.game_ref and target_player_id:
             self.game_ref.add_notification(message, duration_seconds=display_duration_seconds,
                                            target_player=target_player_id)
+            self.game_ref.sounds['bone_crack'].play()
+            self.game_ref.sounds['lekotka_ouch'].play()
 
     def spawn_energols(self):  # static/dynamic nw
         while len(self.active_energols) < ENERGOL_UNIT_LIMIT:

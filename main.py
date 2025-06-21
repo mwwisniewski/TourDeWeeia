@@ -14,6 +14,7 @@ class Game:
     def __init__(self):
         os.environ['SDL_VIDEO_CENTERED'] = '1'
         pygame.init()
+        pygame.mixer.init()
         pygame.display.set_mode((1, 1))
 
         self.MAP_HEIGHT = None
@@ -60,6 +61,22 @@ class Game:
         self.active_notifications = []
         self.notified_flag = False
         self.energolimg = pygame.image.load("img/grafika power-up.png")
+        self.sounds = {}
+        self._load_sounds()
+
+
+    def _load_sounds(self):
+        self.menu_music_path = "sounds/menu_background_opcja1.mp3"
+        self.race_music_path = "sounds/race_background_music.mp3"
+        self.end_of_match = "sounds/menu_background_opcja3.mp3"
+
+        self.sounds['menu_click'] = pygame.mixer.Sound("sounds/menu_select.wav")
+        self.sounds['countdown'] = pygame.mixer.Sound("sounds/race_countdown_opcja1.mp3")
+        self.sounds['room_change'] = pygame.mixer.Sound("sounds/room_change_notification.ogg")
+        self.sounds['success'] = pygame.mixer.Sound("sounds/success_opcja2.wav")
+        self.sounds['lekotka_ouch'] = pygame.mixer.Sound("sounds/ouch_opcja1.wav")
+        self.sounds['bone_crack'] = pygame.mixer.Sound("sounds/bone_crack.wav")
+        #self.sounds['energizer'] = pygame.mixer.Sound("sounds/energizer.wav")
 
     def add_notification(self, message, duration_seconds, target_player=None, text_color=BLACK, bg_color=None,
                          position_topleft=None, position_center=None, pos_y_diff=0, font_type=None,
@@ -136,11 +153,16 @@ class Game:
     def intro_screen(self):
         intro = True
 
+        pygame.mixer.music.load(self.menu_music_path)
+        pygame.mixer.music.set_volume(0.4)
+        pygame.mixer.music.play(loops=-1)
+
         def start_game():
             nonlocal intro
+
             self.all_sprites = pygame.sprite.Group()
 
-            selected_p1, selected_p2 = character_selection_screen(self.screen, self.WIDTH, self.clock)
+            selected_p1, selected_p2 = character_selection_screen(self, self.screen, self.WIDTH, self.clock)
 
             spawn_x1, spawn_y1 = self.game_map.get_random_spawn_point()
             spawn_x2, spawn_y2 = self.game_map.get_random_spawn_point()
@@ -183,7 +205,8 @@ class Game:
                 if event.type == pygame.QUIT:
                     quit_game()
                 for button in buttons:
-                    button.handle_event(event)
+                    if button.handle_event(event):
+                        self.sounds['menu_click'].play()
 
             self.screen.blit(menu_bg, (0, 0))
             for button in buttons:
