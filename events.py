@@ -113,12 +113,12 @@ class EventManager:
     def event_portier(self):  # static
         if random.random() < EVENT_PORTIER_CHANCE:
             self.player2.kurtka = True
-            self.game_ref.add_notification("Musisz odniesc kurtke do szatni!!!",3,target_player="player1",pos_y_diff=50)
+            self.game_ref.add_notification("Musisz odniesc kurtke do szatni!!!",3,target_player="player2",pos_y_diff=50)
         else:
             self.player2.kurtka = False
 
         if random.random() < EVENT_PORTIER_CHANCE:
             self.player1.kurtka = True
-            self.game_ref.add_notification("Musisz odniesc kurtke do szatni!!!",3,target_player="player2",pos_y_diff=50)
+            self.game_ref.add_notification("Musisz odniesc kurtke do szatni!!!",3,target_player="player1",pos_y_diff=50)
         else:
             self.player2.kurtka = False

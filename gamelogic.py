@@ -99,12 +99,12 @@ class RaceManager:
         if self.player1.kurtka:
             if self.events.portier_trigger.colliderect(self.player1.rect):
                 self.player1.kurtka = False
-                self.game_instance.add_notification("Odkladasz kurtke",2,target_player="player1",text_color=config.WHITE,outline_color=config.BLACK)
+                self.game_instance.add_notification("Odkladasz kurtke",2,target_player="player1",pos_y_diff=50)
 
         if self.player2.kurtka:
             if self.events.portier_trigger.colliderect(self.player2.rect):
                 self.player2.kurtka = False
-                self.game_instance.add_notification("Odkladasz kurtke",2,target_player="player2",text_color=config.WHITE,outline_color=config.BLACK)
+                self.game_instance.add_notification("Odkladasz kurtke",2,target_player="player2",pos_y_diff=50)
 
         txt = "Zapomniales odniesc kurtki baranie!!!"
         if self.goal_rect.colliderect(self.player1.rect):
@@ -182,8 +182,7 @@ class RaceManager:
             round_result_message = "Remis - brak punktów"
 
         if self.game_instance:
-            self.game_instance.add_notification(round_result_message, 3, target_player="global",
-                                                position_center=(800, 200))
+            self.game_instance.add_notification(round_result_message, 3, target_player="global",pos_y_diff=-50)
 
         self.round_index += 1
         self.round_active = False
@@ -192,31 +191,31 @@ class RaceManager:
 
     def end_match(self):
         self.game_over = True
+        self.game_instance.active_notifications.clear()
         final_message = "Koniec gry!"
         if self.game_instance:
-            self.game_instance.add_notification(final_message, 3, target_player="global")
+            self.game_instance.add_notification(final_message, 10000, target_player="global")
 
         # to dodac do notyfikacji na mega dlugi czas na ekran koncowy jak zostanie zrobiony
 
         # po prostu dodac do notyfikacji i zostawiamy wolne chodzenie ok? ok
-
-        print(f"Gracz 1: {self.player1points} pkt\n"
-              f"\tCzasy: \n"
-              f"runda 1: {self.player1times[0] / 1000} s\n"
-              f"runda 2: {self.player1times[1] / 1000} s\n"
-              f"runda 3: {self.player1times[2] / 1000} s\n")
-        print(f"Gracz 2: {self.player2points} pkt\n"
-              f"\tCzasy: \n"
-              f"runda 1: {self.player2times[0] / 1000} s\n"
-              f"runda 2: {self.player2times[1] / 1000} s\n"
-              f"runda 3: {self.player2times[2] / 1000} s\n")
+        self.game_instance.add_notification(f"Gracz 1: {self.player1points} pkt",10000,target_player="global",pos_y_diff=50)
+        self.game_instance.add_notification("   Czasy: ",10000,target_player="global",pos_y_diff=100)
+        self.game_instance.add_notification(f"runda 1: {self.player1times[0] / 1000} s",10000,target_player="global",pos_y_diff=150)
+        self.game_instance.add_notification(f"runda 2: {self.player1times[1] / 1000} s",10000,target_player="global",pos_y_diff=200)
+        self.game_instance.add_notification(f"runda 3: {self.player1times[2] / 1000} s",10000,target_player="global",pos_y_diff=250)
+        self.game_instance.add_notification(f"Gracz 2: {self.player2points} pkt",10000,target_player="global",pos_y_diff=300)
+        self.game_instance.add_notification("   Czasy: ",10000,target_player="global",pos_y_diff=350)
+        self.game_instance.add_notification(f"runda 1: {self.player2times[0] / 1000} s",10000,target_player="global",pos_y_diff=400)
+        self.game_instance.add_notification(f"runda 2: {self.player2times[1] / 1000} s",10000,target_player="global",pos_y_diff=450)
+        self.game_instance.add_notification(f"runda 3: {self.player2times[2] / 1000} s",10000,target_player="global",pos_y_diff=500)
 
         if self.player1points > self.player2points:
             print("🥇 Wygrywa Gracz 1!")
-            self.game_instance.sounds['game_win'].play()
+            #self.game_instance.sounds['game_win'].play()
         elif self.player2points > self.player1points:
             print("🥇 Wygrywa Gracz 2!")
-            self.game_instance.sounds['game_win'].play()
+           # self.game_instance.sounds['game_win'].play()
         else:
             print("🤝 Remis!")
 
