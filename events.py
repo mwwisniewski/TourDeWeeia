@@ -64,7 +64,7 @@ class EventManager:
 
         message = f"Sala zajęć została zmieniona - nowy cel: Sala - {self.new_target_room.name}"
         if self.game_ref:
-            self.game_ref.add_notification(message, duration_seconds=4, target_player="global")
+            self.game_ref.add_notification(message, duration_seconds=3, target_player="global")
             self.game_ref.sounds['room_change'].play()
         return self.new_target_room
 
@@ -81,7 +81,7 @@ class EventManager:
     def event_lekotka(self, player):  # static
         slow_duration_seconds = 8
         freeze_duration_seconds = 2
-        display_duration_seconds = 5
+        display_duration_seconds = 4
         message = f"Auć, pękła Ci łękotka! Jesteś spowolniony na {slow_duration_seconds}s"
         target_player_id = None
         if player == self.player1:
@@ -113,12 +113,12 @@ class EventManager:
     def event_portier(self):  # static
         if random.random() < EVENT_PORTIER_CHANCE:
             self.player2.kurtka = True
-            self.game_ref.add_notification("musisz odniesc kurtke do szatni!!!",5,target_player="player1")
+            self.game_ref.add_notification("Musisz odniesc kurtke do szatni!!!",3,target_player="player1",pos_y_diff=50)
         else:
             self.player2.kurtka = False
 
         if random.random() < EVENT_PORTIER_CHANCE:
             self.player1.kurtka = True
-            self.game_ref.add_notification("musisz odniesc kurtke do szatni!!!",5,target_player="player2")
+            self.game_ref.add_notification("Musisz odniesc kurtke do szatni!!!",3,target_player="player2",pos_y_diff=50)
         else:
             self.player2.kurtka = False

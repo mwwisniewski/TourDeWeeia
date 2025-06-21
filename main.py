@@ -78,9 +78,9 @@ class Game:
         self.sounds['bone_crack'] = pygame.mixer.Sound("sounds/bone_crack.wav")
         #self.sounds['energizer'] = pygame.mixer.Sound("sounds/energizer.wav")
 
-    def add_notification(self, message, duration_seconds, target_player=None, text_color=BLACK, bg_color=None,
+    def add_notification(self, message, duration_seconds, target_player=None, text_color=WHITE, bg_color=None,
                          position_topleft=None, position_center=None, pos_y_diff=0, font_type=None,
-                         outline_color=None, outline_thickness=1):  # NOWE PARAMETRY
+                         outline_color=BLACK, outline_thickness=1):  # NOWE PARAMETRY
         # target_player global (srodek ekranu) lub None (ale ustwiajcie global), lub player1 (lewo), player2(prawo)
         # position_topleft i position_center maja priorytet nad target_player!
         # pos_y_diff obniza napis w y, bg color nie ma co ruszac bo to prostokat,
@@ -150,6 +150,34 @@ class Game:
             "end_time": end_time
         })
 
+    def render_text_with_outline(self,message: str,text_color= WHITE,outline_color= BLACK,
+                                 antialias: bool = True,font = None,outline_thickness=1) -> pygame.Surface:
+        # tekst z obramowka (caly czas)
+        # :param antialias: Czy używać antyaliasingu (domyślnie True).
+
+        # 1. Renderuj główny tekst
+        font = self.game_info_font
+        text_surf = font.render(message, antialias, text_color)
+
+        if outline_thickness <= 0 or outline_color is None:
+            return text_surf
+
+        outline_surf = font.render(message, antialias, outline_color)
+        final_width = text_surf.get_width() + 2 * outline_thickness
+        final_height = text_surf.get_height() + 2 * outline_thickness
+        final_surface = pygame.Surface((final_width, final_height), pygame.SRCALPHA)
+        final_surface.fill((0, 0, 0, 0))
+
+        for dx in range(-outline_thickness, outline_thickness + 1):
+            for dy in range(-outline_thickness, outline_thickness + 1):
+
+                outline_pos = (outline_thickness + dx, outline_thickness + dy)
+                final_surface.blit(outline_surf, outline_pos)
+
+        text_pos_on_final = (outline_thickness, outline_thickness)
+        final_surface.blit(text_surf, text_pos_on_final)
+
+        return final_surface
     def intro_screen(self):
         intro = True
 
@@ -239,8 +267,7 @@ class Game:
                 self.race.start_round(self.current_target_room.rect)
                 if self.game_map.path != DEFAULT_MAP and not self.notified_flag:
                     self.add_notification("UWAGA!! NA WYDZIALE MAMY REMONT, MOZLIWE ZABLOKOWANE PRZEJSCIA", 6,
-                                          target_player="global", pos_y_diff=100, font_type="game",
-                                          outline_color=BLACK, text_color=WHITE)
+                                          target_player="global", pos_y_diff=100, font_type="game",)
                     self.notified_flag = True
             self.clock.tick(FPS)
 
@@ -299,9 +326,9 @@ class Game:
                 self.current_target_room = goal
 
         if self.race.energol_picked_up1:
-            self.add_notification("Znajdujesz energetyka!",4,target_player="player1",font_type="game")
+            self.add_notification("Znajdujesz energetyka!",1,target_player="player1",font_type="game",text_color=GREEN,pos_y_diff=150)
         if self.race.energol_picked_up2:
-            self.add_notification("Znajdujesz energetyka!",4,target_player="player2",font_type="game")
+            self.add_notification("Znajdujesz energetyka!",1,target_player="player2",font_type="game",text_color=GREEN,pos_y_diff=150)
 
         current_time = pygame.time.get_ticks()
         self.active_notifications = [n for n in self.active_notifications if current_time < n["end_time"]]
@@ -360,14 +387,12 @@ class Game:
                 scaled_pos_right = (pygame.Vector2(sprite.rect.topleft) * self.zoom) - self.camera_right_offset
                 self.right_view.blit(scaled_img, scaled_pos_right)
 
-        text_surf_p1 = self.zone_font.render(self.player1_current_zone_name, True, self.zone_text_color,
-                                             self.zone_text_bg)
+        text_surf_p1 = self.render_text_with_outline(self.player1_current_zone_name)
         text_rect_p1 = text_surf_p1.get_rect(topleft=(10, 10))
         self.left_view.blit(text_surf_p1, text_rect_p1)
 
         if self.player2:
-            text_surf_p2 = self.zone_font.render(self.player2_current_zone_name, True, self.zone_text_color,
-                                                 self.zone_text_bg)
+            text_surf_p2 = self.render_text_with_outline(self.player2_current_zone_name)
             text_rect_p2 = text_surf_p2.get_rect(topright=((self.WIDTH // 2) - 15, 10))
             self.right_view.blit(text_surf_p2, text_rect_p2)
 
@@ -397,29 +422,27 @@ class Game:
             if self.race.round_active:
                 current_round_time = (pygame.time.get_ticks() - self.race.globaltimer) / 1000
                 time_str = f"{int(current_round_time // 60)}:{current_round_time % 60:.2f}"
-                time_surf = self.game_info_font.render(time_str, True, self.zone_text_color,
-                                                       self.zone_text_bg)
+                time_surf = self.render_text_with_outline(message=time_str)
                 time_rect = time_surf.get_rect(centerx=self.WIDTH // 2, top=10)
                 self.screen.blit(time_surf, time_rect)
             else:
-                time_str = "0:0.00"
-                time_surf = self.game_info_font.render(time_str, True, self.zone_text_color,
-                                                       self.zone_text_bg)
+                time_str = "0:00"
+                time_surf = self.render_text_with_outline(message=time_str)
                 time_rect = time_surf.get_rect(centerx=self.WIDTH // 2, top=10)
                 self.screen.blit(time_surf, time_rect)
 
             p1_score_str = str(self.race.player1points)
-            p1_score_surf = self.game_info_font.render(p1_score_str, True, self.zone_text_color, self.zone_text_bg)
+            p1_score_surf = self.render_text_with_outline(p1_score_str)
             p1_score_rect = p1_score_surf.get_rect(centerx=self.WIDTH // 2 - 10, top=40)
             self.screen.blit(p1_score_surf, p1_score_rect)
 
-            colon_surf = self.game_info_font.render(":", True, self.zone_text_color, self.zone_text_bg)
+            colon_surf = self.render_text_with_outline(":")
             colon_rect = colon_surf.get_rect(centerx=self.WIDTH // 2, top=40)
             self.screen.blit(colon_surf, colon_rect)
 
             if self.player2:
                 p2_score_str = str(self.race.player2points)
-                p2_score_surf = self.game_info_font.render(p2_score_str, True, self.zone_text_color, self.zone_text_bg)
+                p2_score_surf = self.render_text_with_outline(p2_score_str)
                 p2_score_rect = p2_score_surf.get_rect(centerx=self.WIDTH // 2 + 10, top=40)
                 self.screen.blit(p2_score_surf, p2_score_rect)
 
@@ -428,7 +451,7 @@ class Game:
                 f"FPS: {self.clock.get_fps():.2f}")
 
         target_text_str = f"Cel: {self.current_target_room.name}"
-        text_surf = self.target_info_font.render(target_text_str, True, self.zone_text_color)
+        text_surf = self.render_text_with_outline(target_text_str)
 
         if self.player1 and self.current_target_room:
             rect_p1_target = text_surf.get_rect()
@@ -464,6 +487,7 @@ class Game:
             self.bg_image, self.collision_mask = self.game_map.load()
             self.MAP_WIDTH, self.MAP_HEIGHT = self.bg_image.get_size()
         self.notified_flag = False
+        self.race.reset_players_state()
         self.add_notification("Nastąpił restart gry!", 5, target_player="global", position_center=(800, 800))
 
 

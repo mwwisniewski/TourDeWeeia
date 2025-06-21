@@ -43,22 +43,22 @@ class RaceManager:
             self.game_instance.sounds['countdown'].play()
 
         if self.game_instance:
-            self.game_instance.add_notification("3!", 1, target_player="global", text_color=config.RED)
+            self.game_instance.add_notification("3!", 1, target_player="global", text_color=config.RED,outline_color=config.BLACK)
             self.game_instance.update()
             self.game_instance.draw()
         pygame.time.wait(1000)
         if self.game_instance:
-            self.game_instance.add_notification("2!", 1, target_player="global", text_color=config.ORANGE)
+            self.game_instance.add_notification("2!", 1, target_player="global", text_color=config.ORANGE,outline_color=config.BLACK)
             self.game_instance.update()
             self.game_instance.draw()
         pygame.time.wait(1000)
         if self.game_instance:
-            self.game_instance.add_notification("1!", 1, target_player="global", text_color=config.YELLOW)
+            self.game_instance.add_notification("1!", 1, target_player="global", text_color=config.YELLOW,outline_color=config.BLACK)
             self.game_instance.update()
             self.game_instance.draw()
         pygame.time.wait(1000)
         if self.game_instance:
-            self.game_instance.add_notification("START!", 1, target_player="global", text_color=config.GREEN)
+            self.game_instance.add_notification("START!", 1, target_player="global", text_color=config.GREEN,outline_color=config.BLACK)
             self.game_instance.update()
             self.game_instance.draw()
 
@@ -99,12 +99,12 @@ class RaceManager:
         if self.player1.kurtka:
             if self.events.portier_trigger.colliderect(self.player1.rect):
                 self.player1.kurtka = False
-                self.game_instance.add_notification("odkladasz kurtke",2,target_player="player1")
+                self.game_instance.add_notification("Odkladasz kurtke",2,target_player="player1",text_color=config.WHITE,outline_color=config.BLACK)
 
         if self.player2.kurtka:
             if self.events.portier_trigger.colliderect(self.player2.rect):
                 self.player2.kurtka = False
-                self.game_instance.add_notification("odkladasz kurtke",2,target_player="player2")
+                self.game_instance.add_notification("Odkladasz kurtke",2,target_player="player2",text_color=config.WHITE,outline_color=config.BLACK)
 
         txt = "Zapomniales odniesc kurtki baranie!!!"
         if self.goal_rect.colliderect(self.player1.rect):
@@ -227,3 +227,5 @@ class RaceManager:
         self.player1.freezed_until = 0
         self.player2.faster_until = 0
         self.player1.faster_until = 0
+        self.player1.speed = config.PLAYER_SPEED
+        self.player2.speed = config.PLAYER_SPEED
