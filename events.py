@@ -104,8 +104,8 @@ class EventManager:
             self.game_ref.sounds['bone_crack'].play()
             self.game_ref.sounds['lekotka_ouch'].play()
 
-    def spawn_energols(self):  # static/dynamic nw
-        while len(self.active_energols) < ENERGOL_UNIT_LIMIT:
+    def spawn_energy_drinks(self):  # static/dynamic nw
+        while len(self.active_energols) < ENERGY_DRINKS_UNIT_LIMIT:
             energol = random.choice(self.energol_spawn_points)
             if energol not in self.active_energols:
                 self.active_energols.append(energol)
@@ -113,12 +113,12 @@ class EventManager:
     def event_portier(self):  # static
         if random.random() < EVENT_PORTIER_CHANCE:
             self.player2.kurtka = True
-            self.game_ref.add_notification("Musisz odniesc kurtke do szatni!!!",3,target_player="player2",pos_y_diff=50)
+            self.game_ref.add_notification("Musisz odnieść kurtkę do szatni!!!",3,target_player="player2",pos_y_diff=50)
         else:
             self.player2.kurtka = False
 
         if random.random() < EVENT_PORTIER_CHANCE:
             self.player1.kurtka = True
-            self.game_ref.add_notification("Musisz odniesc kurtke do szatni!!!",3,target_player="player1",pos_y_diff=50)
+            self.game_ref.add_notification("Musisz odnieść kurtkę do szatni!!!",3,target_player="player1",pos_y_diff=50)
         else:
             self.player2.kurtka = False
