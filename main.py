@@ -4,7 +4,7 @@ import map_config
 from map_config import *
 from sprites import *
 from menu import *
-from gamelogic import RaceManager
+from game_logic import RaceManager
 from menu import character_selection_screen
 from debug_config import *
 from config import *
