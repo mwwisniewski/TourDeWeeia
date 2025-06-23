@@ -53,7 +53,7 @@ class EventManager:
         self.target_rooms = target_rooms
 
     def maybe_event_sala(self):
-        if random.random() < EVENT_SALA_CHANCE:
+        if random.random() < self.game_ref.event_sala_chance:
             return self.event_zmiana_sali()
         return None
 
@@ -69,9 +69,7 @@ class EventManager:
         return self.new_target_room
 
     def maybe_event_lekotka(self, player1, zone):
-        if zone.name not in [trigger.name for trigger in self.map_triggers]:
-            return None
-        if random.random() < EVENT_LEKOTKA_CHANCE:
+        if random.random() < self.game_ref.event_lekotka_chance:
             return self.event_lekotka(player1)
         return None
 
@@ -111,14 +109,14 @@ class EventManager:
                 self.active_energols.append(energol)
 
     def event_portier(self):  # static
-        if random.random() < EVENT_PORTIER_CHANCE:
+        if random.random() < self.game_ref.event_portier_chance:
             self.player2.kurtka = True
             self.game_ref.add_notification("Musisz odnieść kurtkę do szatni!!!", 3, target_player="player2",
                                            pos_y_diff=50)
         else:
             self.player2.kurtka = False
 
-        if random.random() < EVENT_PORTIER_CHANCE:
+        if random.random() < self.game_ref.event_portier_chance:
             self.player1.kurtka = True
             self.game_ref.add_notification("Musisz odnieść kurtkę do szatni!!!", 3, target_player="player1",
                                            pos_y_diff=50)

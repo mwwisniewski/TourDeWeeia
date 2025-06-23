@@ -108,6 +108,10 @@ def character_selection_screen(game_instance, screen, width, clock):
     selected_p1 = None
     selected_p2 = None
 
+    menu_bg = pygame.image.load(config.LOGO).convert()
+    menu_bg = pygame.transform.scale(menu_bg, (width, config.HEIGHT))
+    screen.blit(menu_bg, (0, 0))
+
     character_paths = [
         "img/sprites/sprite1",
         "img/sprites/sprite2",
@@ -130,14 +134,18 @@ def character_selection_screen(game_instance, screen, width, clock):
 
     button_width = int(150 * config.ZOOM_CHARACTER_SCREEN_MULT)
     button_height = int(50 * config.ZOOM_CHARACTER_SCREEN_MULT)
-    button_x = width // 2 - button_width // 2
+
+    play_button_x = width // 2 - button_width - 10
+    back_button_x = width // 2 + 10
 
     num_characters = len(character_options)
     bottom_of_selection = 150 + num_characters * spacing_y
     space_after = 40
     button_y = bottom_of_selection + space_after
 
-    play_button = Menu("GRAJ", button_x, button_y, button_width, button_height, lambda: None,
+    play_button = Menu("Graj", play_button_x, button_y, button_width, button_height, lambda: None,
+                       font_size=int(28 * config.ZOOM_CHARACTER_SCREEN_MULT))
+    back_button = Menu("Powrót", back_button_x, button_y, button_width, button_height, lambda: None,
                        font_size=int(28 * config.ZOOM_CHARACTER_SCREEN_MULT))
 
     def draw_cross(surface, color, rect):
@@ -146,7 +154,7 @@ def character_selection_screen(game_instance, screen, width, clock):
         pygame.draw.line(surface, color, rect.topright, rect.bottomleft, 4)
 
     def draw_selection():
-        screen.fill(config.WHITE)
+        screen.blit(menu_bg, (0, 0))
 
         title_p1 = font.render("Gracz 1 wybiera W/S i SPACJA", True, config.BLUE)
         title_p2 = font.render("Gracz 2 wybiera ↑/↓ i ENTER", True, config.RED)
@@ -191,7 +199,10 @@ def character_selection_screen(game_instance, screen, width, clock):
         both_selected = selected_p1 and selected_p2
         play_button.active = both_selected
         play_button.draw(screen)
+        back_button.draw(screen)
         pygame.display.flip()
+
+    action_result = "back"
 
     while not selection_done:
         draw_selection()
@@ -231,12 +242,59 @@ def character_selection_screen(game_instance, screen, width, clock):
                         selected_p2 = selected_path
                     game_instance.sounds['menu_click'].play()
 
-            if selected_p1 and selected_p2:
-                if play_button.handle_event(event):
-                    game_instance.sounds['menu_click'].play()
-                    pygame.mixer.music.fadeout(500)
-                    selection_done = True
+            if play_button.active and play_button.handle_event(event):
+                game_instance.sounds['menu_click'].play()
+                pygame.mixer.music.fadeout(500)
+                action_result = "play"
+                selection_done = True
+                break
 
-        clock.tick(config.FPS)
+            if back_button.handle_event(event):
+                game_instance.sounds['menu_click'].play()
+                action_result = "back"
+                selection_done = True
+                break
 
-    return selected_p1, selected_p2
+            clock.tick(config.FPS)
+
+    if action_result == "play":
+        return action_result, selected_p1, selected_p2
+    else:
+        return action_result, None, None
+
+
+class Checkbox:
+    def __init__(self, x, y, size, initial_val, label, callback):
+        self.rect = pygame.Rect(x, y, size, size)
+        self.checked = initial_val
+        self.label_text = label
+        self.callback = callback
+
+        self.font = pygame.font.SysFont("arial", 24)
+
+        label_surf = self.font.render(self.label_text, True, config.BLACK)
+        self.label_pos = (self.rect.right + 10, self.rect.centery - label_surf.get_height() // 2)
+
+    def draw(self, screen):
+        pygame.draw.rect(screen, config.BLACK, self.rect, 2)
+
+        if self.checked:
+            margin = 4
+            top_left = (self.rect.left + margin, self.rect.top + margin)
+            top_right = (self.rect.right - margin, self.rect.top + margin)
+            bottom_left = (self.rect.left + margin, self.rect.bottom - margin)
+            bottom_right = (self.rect.right - margin, self.rect.bottom - margin)
+
+            pygame.draw.line(screen, config.GREEN, top_left, bottom_right, 3)
+            pygame.draw.line(screen, config.GREEN, top_right, bottom_left, 3)
+
+        label_surf = self.font.render(self.label_text, True, config.BLACK)
+        screen.blit(label_surf, self.label_pos)
+
+    def handle_event(self, event):
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            if self.rect.collidepoint(event.pos):
+                self.checked = not self.checked
+                self.callback(self.checked)
+                return True
+        return False

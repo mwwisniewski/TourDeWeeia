@@ -4,10 +4,11 @@ import os
 
 
 class Player(pygame.sprite.Sprite):
-    def __init__(self, x, y, control_type, color_or_path):
+    def __init__(self, x, y, control_type, color_or_path, speed):
         super().__init__()
         self.control_type = control_type
-        self.speed = config.PLAYER_SPEED
+        self.speed = speed
+        self.default_speed = speed
         self.rect = pygame.Rect(x, y, 28, 28)
         self.freeze_until = 0
         self.slowed_until = 0
@@ -59,10 +60,10 @@ class Player(pygame.sprite.Sprite):
             return
 
         if 0 < self.slowed_until <= now:
-            self.speed = config.PLAYER_SPEED
+            self.speed = self.default_speed
             self.slowed_until = 0
         if 0 < self.faster_until <= now:
-            self.speed = config.PLAYER_SPEED
+            self.speed = self.default_speed
             self.faster_until = 0
 
         dx, dy = 0, 0
