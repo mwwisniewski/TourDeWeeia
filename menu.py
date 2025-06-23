@@ -32,6 +32,77 @@ class Menu:
         return False
 
 
+class Slider:
+    def __init__(self, x, y, width, height, min_val, max_val, initial_val, label, callback):
+        self.rect = pygame.Rect(x, y, width, height)
+        self.min_val = min_val
+        self.max_val = max_val
+        self.value = initial_val
+        self.label_text = label
+        self.callback = callback
+
+        self.handle_width = 20
+        self.handle_rect = pygame.Rect(0, 0, self.handle_width, height + 10)
+        self.update_handle_pos()
+
+        self.dragging = False
+        self.font = pygame.font.SysFont("arial", 24)
+
+    def _update_value_from_pos(self, x_pos):
+        new_x = max(self.rect.left, min(x_pos, self.rect.right))
+
+        # przeliczenie pozycji na wartosc
+        if self.rect.width > 0:
+            ratio = (new_x - self.rect.x) / self.rect.width
+            self.value = self.min_val + ratio * (self.max_val - self.min_val)
+            self.update_handle_pos()
+            self.callback(self.value)
+
+    def update_handle_pos(self):
+        ratio = (self.value - self.min_val) / (self.max_val - self.min_val)
+        handle_x = self.rect.x + ratio * (self.rect.width - self.handle_width)
+        self.handle_rect.centerx = handle_x + self.handle_width // 2
+        self.handle_rect.centery = self.rect.centery
+
+    def draw(self, screen):
+        # suwak tło
+        pygame.draw.rect(screen, config.DARKGRAY, self.rect)
+
+        # wypelnienie suwaka
+        fill_width = (self.value - self.min_val) / (self.max_val - self.min_val) * self.rect.width
+        fill_rect = pygame.Rect(self.rect.x, self.rect.y, fill_width, self.rect.height)
+        pygame.draw.rect(screen, config.GREEN, fill_rect)
+
+        # uchwyt
+        pygame.draw.rect(screen, config.WHITE, self.handle_rect)
+        pygame.draw.rect(screen, config.BLACK, self.handle_rect, 2)
+
+        # etykieta
+        label_surf = self.font.render(self.label_text, True, config.BLACK)
+        screen.blit(label_surf, (self.rect.x, self.rect.y - 30))
+
+        # wartosc procentowa
+        percent_val = int(self.value * 100)
+        value_surf = self.font.render(f"{percent_val}%", True, config.BLACK)
+        screen.blit(value_surf, (self.rect.right + 15, self.rect.centery - value_surf.get_height() // 2))
+
+    def handle_event(self, event):
+        mouse_x, mouse_y = pygame.mouse.get_pos()
+
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            # czy klikniety w pasek
+            if self.rect.collidepoint(event.pos):
+                self.dragging = True
+                self._update_value_from_pos(mouse_x)
+
+        elif event.type == pygame.MOUSEBUTTONUP:
+            self.dragging = False
+
+        elif event.type == pygame.MOUSEMOTION:
+            if self.dragging:
+                self._update_value_from_pos(mouse_x)
+
+
 def character_selection_screen(game_instance, screen, width, clock):
     selection_done = False
     selected_p1 = None
@@ -69,6 +140,11 @@ def character_selection_screen(game_instance, screen, width, clock):
     play_button = Menu("GRAJ", button_x, button_y, button_width, button_height, lambda: None,
                        font_size=int(28 * config.ZOOM_CHARACTER_SCREEN_MULT))
 
+    def draw_cross(surface, color, rect):
+        # zeby uniknac duplikacji funkcja do przekreslania wybranej postaci
+        pygame.draw.line(surface, color, rect.topleft, rect.bottomright, 4)
+        pygame.draw.line(surface, color, rect.topright, rect.bottomleft, 4)
+
     def draw_selection():
         screen.fill(config.WHITE)
 
@@ -105,16 +181,12 @@ def character_selection_screen(game_instance, screen, width, clock):
                 pygame.draw.rect(screen, config.RED, rect_p2, 4)
 
             if is_taken_by_p1:
-                pygame.draw.line(screen, config.BLUE, rect_p1.topleft, rect_p1.bottomright, 3)
-                pygame.draw.line(screen, config.BLUE, rect_p1.topright, rect_p1.bottomleft, 3)
-                pygame.draw.line(screen, config.BLUE, rect_p2.topleft, rect_p2.bottomright, 3)
-                pygame.draw.line(screen, config.BLUE, rect_p2.topright, rect_p2.bottomleft, 3)
+                draw_cross(screen, config.BLUE, rect_p1)
+                draw_cross(screen, config.BLUE, rect_p2)
 
             if is_taken_by_p2:
-                pygame.draw.line(screen, config.RED, rect_p1.topleft, rect_p1.bottomright, 3)
-                pygame.draw.line(screen, config.RED, rect_p1.topright, rect_p1.bottomleft, 3)
-                pygame.draw.line(screen, config.RED, rect_p2.topleft, rect_p2.bottomright, 3)
-                pygame.draw.line(screen, config.RED, rect_p2.topright, rect_p2.bottomleft, 3)
+                draw_cross(screen, config.RED, rect_p1)
+                draw_cross(screen, config.RED, rect_p2)
 
         both_selected = selected_p1 and selected_p2
         play_button.active = both_selected

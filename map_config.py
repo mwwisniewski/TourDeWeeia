@@ -64,23 +64,28 @@ def create_main_map():
         TransitionZone("Parter dlugi korytarz -> Wejscie WEEIA", pygame.Rect(3020, 1970, 170, 30), (3300, 1500)),
         TransitionZone("Parter dlugi korytarz -> Pierwsze pietro #1", pygame.Rect(2725, 1965, 25, 90), (1075, 120)),
         TransitionZone("Parter dlugi korytarz -> Pierwsze pietro #2", pygame.Rect(2570, 2995, 100, 180), (840, 1150)),
-        TransitionZone("Pierwsze pietro -> Wejscie WEEIA", pygame.Rect(40, 40, 185, 40), (2300, 1400)),
+        TransitionZone("Pierwsze pietro -> Wejscie WEEIA", pygame.Rect(40, 40, 185, 40), (2300, 1350)),
+        ##TU ZMIENIONE NA CHWILE PAMIETAJ
         TransitionZone("Pierwsze pietro -> Parter dlugi korytarz #1", pygame.Rect(968, 135, 32, 90), (2820, 2075)),
         TransitionZone("Pierwsze pietro -> Parter dlugi korytarz #2", pygame.Rect(616, 1065, 134, 175), (2770, 3045)),
         TransitionZone("Pierwsze pietro -> IMSI", pygame.Rect(1535, 685, 30, 40), (1510, 3400)),
         TransitionZone("IMSI -> Pierwsze pietro", pygame.Rect(1508, 3456, 50, 40), (1440, 705)),
         TransitionZone("Pierwsze pietro sieci (DT i Bistro) -> Wejscie WEEIA", pygame.Rect(4790, 230, 180, 70),
-                       (2350, 150)),
+                       (2300, 120)),  ##TU ZMIENIONE NA CHWILE PAMIETAJ
         TransitionZone("Pierwsze pietro sieci (DT i Bistro) -> Drugie pietro sieci", pygame.Rect(4690, 40, 80, 180),
-                       (5810, 370)),
+                       (5810, 430)),
         TransitionZone("Drugie pietro sieci -> Pierwsze pietro sieci (DT i Bistro)", pygame.Rect(5705, 260, 180, 80),
-                       (4650, 135)),
-        TransitionZone("Drugie pietro sieci -> Trzecie pietro sieci", pygame.Rect(5600, 40, 80, 180), (7135, 370)),
-        TransitionZone("Trzecie pietro sieci -> Drugie pietro sieci", pygame.Rect(7055, 260, 185, 80), (5560, 135)),
+                       (4550, 125)),  ##TU ZMIENIONE NA CHWILE PAMIETAJ
+        TransitionZone("Drugie pietro sieci -> Trzecie pietro sieci", pygame.Rect(5600, 40, 80, 180), (7100, 450)),
+        ##TU ZMIENIONE NA CHWILE PAMIETAJ
+        TransitionZone("Trzecie pietro sieci -> Drugie pietro sieci", pygame.Rect(7055, 260, 185, 80), (5460, 115)),
+        ##TU ZMIENIONE NA CHWILE PAMIETAJ
         TransitionZone("Trzecie pietro sieci -> Trzeci korytarz sieci", pygame.Rect(6672, 235, 25, 175), (6415, 320)),
-        TransitionZone("Trzecie pietro sieci -> Czwarte pietro sieci", pygame.Rect(6955, 40, 80, 180), (8570, 370)),
+        TransitionZone("Trzecie pietro sieci -> Czwarte pietro sieci", pygame.Rect(6955, 40, 80, 180), (8520, 450)),
+        ##TU ZMIENIONE NA CHWILE PAMIETAJ
         TransitionZone("Trzeci korytarz sieci -> Trzecie pietro sieci", pygame.Rect(6455, 235, 25, 175), (6735, 320)),
-        TransitionZone("Czwarte pietro sieci -> Trzecie pietro sieci", pygame.Rect(8488, 260, 185, 80), (6915, 135)),
+        TransitionZone("Czwarte pietro sieci -> Trzecie pietro sieci", pygame.Rect(8488, 260, 185, 80), (6815, 115)),
+        ##TU ZMIENIONE NA CHWILE PAMIETAJ
         TransitionZone("Czwarte pietro sieci -> Czwarty korytarz sieci", pygame.Rect(8105, 235, 25, 175), (7800, 320)),
         TransitionZone("Czwarty korytarz sieci -> Czwarte pietro sieci", pygame.Rect(7840, 235, 25, 175), (8145, 320))
     ]
