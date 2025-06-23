@@ -102,14 +102,14 @@ class RaceManager:
         if self.player1.kurtka:
             if self.events.portier_trigger.colliderect(self.player1.rect):
                 self.player1.kurtka = False
-                self.game_instance.add_notification("Odkladasz kurtke", 2, target_player="player1", pos_y_diff=50)
+                self.game_instance.add_notification("Odkładasz kurtkę", 2, target_player="player1", pos_y_diff=50)
 
         if self.player2.kurtka:
             if self.events.portier_trigger.colliderect(self.player2.rect):
                 self.player2.kurtka = False
-                self.game_instance.add_notification("Odkladasz kurtke", 2, target_player="player2", pos_y_diff=50)
+                self.game_instance.add_notification("Odkładasz kurtkę", 2, target_player="player2", pos_y_diff=50)
 
-        txt = "Zapomniales odniesc kurtki baranie!!!"
+        message = "Zapomniałeś odnieść kurtki baranie!!!"
         if self.goal_rect.colliderect(self.player1.rect):
             if not self.player1_finished and not self.player1.kurtka:
                 if not self.player1_finished and not self.player2_finished:
@@ -119,6 +119,7 @@ class RaceManager:
                         new_goal_to_return = potential_new_goal
                     else:
                         self.player1_finished = True
+                        self.game_instance.sounds['success'].play()
                         self.player1times[self.round_index] = now - self.globaltimer
                         finish_message_p1 = f"Gracz 1 dotarł do celu w {self.player1times[self.round_index] / 1000:.2f}s"
                         if self.game_instance:
@@ -133,7 +134,7 @@ class RaceManager:
                         self.game_instance.add_notification(finish_message_p1, 3, target_player="player1",
                                                             position_topleft=(200, 700))
             elif not self.player1_finished and self.player1.kurtka:
-                self.game_instance.add_notification(txt, target_player="player1", duration_seconds=3)
+                self.game_instance.add_notification(message, target_player="player1", duration_seconds=3)
 
         if self.goal_rect.colliderect(self.player2.rect):
             if not self.player2_finished and not self.player2.kurtka:
@@ -152,13 +153,14 @@ class RaceManager:
                                                                 position_topleft=(1000, 700))
                 else:
                     self.player2_finished = True
+                    self.game_instance.sounds['success'].play()
                     self.player2times[self.round_index] = now - self.globaltimer
                     finish_message_p2 = f"Gracz 2 dotarł do celu w {self.player2times[self.round_index] / 1000:.2f}s"
                     if self.game_instance:
                         self.game_instance.add_notification(finish_message_p2, 3, target_player="player2",
                                                             position_topleft=(1000, 700))
             elif not self.player2_finished and self.player2.kurtka:
-                self.game_instance.add_notification(txt, target_player="player2", duration_seconds=3)
+                self.game_instance.add_notification(message, target_player="player2", duration_seconds=3)
 
         if new_goal_to_return:
             self.player1_finished = False
@@ -205,30 +207,31 @@ class RaceManager:
         self.game_instance.add_notification(f"Gracz 1: {self.player1points} pkt", 10000, target_player="global",
                                             pos_y_diff=50)
         self.game_instance.add_notification("   Czasy: ", 10000, target_player="global", pos_y_diff=100)
-        self.game_instance.add_notification(f"runda 1: {self.player1times[0] / 1000} s", 10000, target_player="global",
+        self.game_instance.add_notification(f"Runda 1: {self.player1times[0] / 1000} s", 10000, target_player="global",
                                             pos_y_diff=150)
-        self.game_instance.add_notification(f"runda 2: {self.player1times[1] / 1000} s", 10000, target_player="global",
+        self.game_instance.add_notification(f"Runda 2: {self.player1times[1] / 1000} s", 10000, target_player="global",
                                             pos_y_diff=200)
-        self.game_instance.add_notification(f"runda 3: {self.player1times[2] / 1000} s", 10000, target_player="global",
+        self.game_instance.add_notification(f"Runda 3: {self.player1times[2] / 1000} s", 10000, target_player="global",
                                             pos_y_diff=250)
         self.game_instance.add_notification(f"Gracz 2: {self.player2points} pkt", 10000, target_player="global",
                                             pos_y_diff=300)
         self.game_instance.add_notification("   Czasy: ", 10000, target_player="global", pos_y_diff=350)
-        self.game_instance.add_notification(f"runda 1: {self.player2times[0] / 1000} s", 10000, target_player="global",
+        self.game_instance.add_notification(f"Runda 1: {self.player2times[0] / 1000} s", 10000, target_player="global",
                                             pos_y_diff=400)
-        self.game_instance.add_notification(f"runda 2: {self.player2times[1] / 1000} s", 10000, target_player="global",
+        self.game_instance.add_notification(f"Runda 2: {self.player2times[1] / 1000} s", 10000, target_player="global",
                                             pos_y_diff=450)
-        self.game_instance.add_notification(f"runda 3: {self.player2times[2] / 1000} s", 10000, target_player="global",
+        self.game_instance.add_notification(f"Runda 3: {self.player2times[2] / 1000} s", 10000, target_player="global",
                                             pos_y_diff=500)
 
         if self.player1points > self.player2points:
-            print("🥇 Wygrywa Gracz 1!")
+            print("dzwiek dla wygranej")
             # self.game_instance.sounds['game_win'].play()
         elif self.player2points > self.player1points:
-            print("🥇 Wygrywa Gracz 2!")
-        # self.game_instance.sounds['game_win'].play()
+            print("dzwiek dla wygranej")
+            #self.game_instance.sounds['game_win'].play()
         else:
             print("🤝 Remis!")
+            #self.game_instance.sounds['game_win'].play()
 
     def reset_players_state(self):
         self.player2.freezed_until = 0
