@@ -327,7 +327,12 @@ class Game:
 
             self.all_sprites = pygame.sprite.Group()
 
-            selected_p1, selected_p2 = character_selection_screen(self, self.screen, self.WIDTH, self.clock)
+            self.sounds['menu_click'].play()
+
+            action, selected_p1, selected_p2 = character_selection_screen(self, self.screen, self.WIDTH, self.clock)
+
+            if action == "back":
+                return
 
             spawn_x1, spawn_y1 = self.game_map.get_random_spawn_point()
             spawn_x2, spawn_y2 = self.game_map.get_random_spawn_point()

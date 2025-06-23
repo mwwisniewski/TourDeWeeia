@@ -130,14 +130,18 @@ def character_selection_screen(game_instance, screen, width, clock):
 
     button_width = int(150 * config.ZOOM_CHARACTER_SCREEN_MULT)
     button_height = int(50 * config.ZOOM_CHARACTER_SCREEN_MULT)
-    button_x = width // 2 - button_width // 2
+
+    play_button_x = width // 2 - button_width - 10
+    back_button_x = width // 2 + 10
 
     num_characters = len(character_options)
     bottom_of_selection = 150 + num_characters * spacing_y
     space_after = 40
     button_y = bottom_of_selection + space_after
 
-    play_button = Menu("GRAJ", button_x, button_y, button_width, button_height, lambda: None,
+    play_button = Menu("Graj", play_button_x, button_y, button_width, button_height, lambda: None,
+                       font_size=int(28 * config.ZOOM_CHARACTER_SCREEN_MULT))
+    back_button = Menu("Powrót", back_button_x, button_y, button_width, button_height, lambda: None,
                        font_size=int(28 * config.ZOOM_CHARACTER_SCREEN_MULT))
 
     def draw_cross(surface, color, rect):
@@ -191,7 +195,10 @@ def character_selection_screen(game_instance, screen, width, clock):
         both_selected = selected_p1 and selected_p2
         play_button.active = both_selected
         play_button.draw(screen)
+        back_button.draw(screen)
         pygame.display.flip()
+
+    action_result = "back"
 
     while not selection_done:
         draw_selection()
@@ -233,10 +240,17 @@ def character_selection_screen(game_instance, screen, width, clock):
 
             if selected_p1 and selected_p2:
                 if play_button.handle_event(event):
-                    game_instance.sounds['menu_click'].play()
                     pygame.mixer.music.fadeout(500)
+                    action_result = "play"
                     selection_done = True
+
+            if back_button.handle_event(event):
+                action_result = "back"
+                selection_done = True
 
         clock.tick(config.FPS)
 
-    return selected_p1, selected_p2
+    if action_result == "play":
+        return action_result, selected_p1, selected_p2
+    else:
+        return action_result, None, None
