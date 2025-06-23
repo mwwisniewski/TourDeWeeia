@@ -1,6 +1,6 @@
 import pygame.image
+import json
 
-import map_config
 from map_config import *
 from sprites import *
 from menu import *
@@ -61,8 +61,41 @@ class Game:
         self.active_notifications = []
         self.notified_flag = False
         self.energolimg = pygame.image.load("img/grafika power-up.png")
+
+        self.settings_file = "settings.json"
+
+        self.master_volume = 1.0
+        self.music_volume = 1.0
+        self.sfx_volume = 1.0
+
+        self._load_settings()
+
         self.sounds = {}
         self._load_sounds()
+        self.update_volumes()
+
+    def _save_settings(self):
+        settings = {
+            'master_volume': self.master_volume,
+            'music_volume': self.music_volume,
+            'sfx_volume': self.sfx_volume
+        }
+        with open(self.settings_file, 'w') as f:
+            json.dump(settings, f, indent=4)  #
+        print("Ustawienia zapisane.")
+
+    def _load_settings(self):
+        try:
+            with open(self.settings_file, 'r') as fp:
+                settings = json.load(fp)
+                self.master_volume = settings.get('master_volume', 1.0)
+                self.music_volume = settings.get('music_volume', 1.0)
+                self.sfx_volume = settings.get('sfx_volume', 1.0)
+                print("domyslne ustawienia")
+        except FileNotFoundError:
+            print("brak pliku z ustawieniami")
+        except json.JSONDecodeError:
+            print("plik pusty lub uszkodzony")
 
     def _load_sounds(self):
         self.menu_music_path = "sounds/menu_background_opcja1.mp3"
@@ -76,6 +109,111 @@ class Game:
         self.sounds['lekotka_ouch'] = pygame.mixer.Sound("sounds/ouch_opcja1.wav")
         self.sounds['bone_crack'] = pygame.mixer.Sound("sounds/bone_crack.wav")
         # self.sounds['energizer'] = pygame.mixer.Sound("sounds/energizer.wav")
+
+    def update_volumes(self):
+        final_music_vol = self.master_volume * self.music_volume
+        pygame.mixer.music.set_volume(final_music_vol)
+
+        final_sfx_vol = self.master_volume * self.sfx_volume
+        for sound in self.sounds.values():
+            sound.set_volume(final_sfx_vol)
+
+    def set_master_volume(self, value):
+        self.master_volume = value
+        self.update_volumes()
+
+    def set_music_volume(self, value):
+        self.music_volume = value
+        self.update_volumes()
+
+    def set_sfx_volume(self, value):
+        self.sfx_volume = value
+        if 'menu_click' in self.sounds:
+            self.sounds['menu_click'].play()
+        self.update_volumes()
+
+    def settings_screen(self):
+        # TODO
+        # checkbox "Tryb dla admina"
+        settings_active = True
+
+        # tymczasowe zmienne modyfikowane przez suwaki
+        temp_master_volume = self.master_volume
+        temp_music_volume = self.music_volume
+        temp_sfx_volume = self.sfx_volume
+
+        def set_temp_master(value):
+            nonlocal temp_master_volume
+            temp_master_volume = value
+            pygame.mixer.music.set_volume(temp_master_volume * temp_music_volume)
+            for sound in self.sounds.values():
+                sound.set_volume(temp_master_volume * temp_sfx_volume)
+
+        def set_temp_music(value):
+            nonlocal temp_music_volume
+            temp_music_volume = value
+            pygame.mixer.music.set_volume(temp_master_volume * temp_music_volume)
+
+        def set_temp_sfx(value):
+            nonlocal temp_sfx_volume
+            temp_sfx_volume = value
+            for sound in self.sounds.values():
+                sound.set_volume(temp_master_volume * temp_sfx_volume)
+            if 'menu_click' in self.sounds:
+                self.sounds['menu_click'].play()
+
+        slider_width = 300
+        slider_height = 20
+        start_x = self.WIDTH // 2 - slider_width // 2
+        start_y = 200
+
+        sliders = [
+            Slider(start_x, start_y, slider_width, slider_height, 0.0, 1.0,
+                   temp_master_volume, "Głośność ogólna", set_temp_master),
+
+            Slider(start_x, start_y + 100, slider_width, slider_height, 0.0, 1.0,
+                   temp_music_volume, "Głośność muzyki", set_temp_music),
+
+            Slider(start_x, start_y + 200, slider_width, slider_height, 0.0, 1.0,
+                   temp_sfx_volume, "Głośność efektów", set_temp_sfx)
+        ]
+
+        button_y = start_y + 300
+        save_button = Menu("Zapisz", start_x, button_y, 140, 50, lambda: None)
+        back_button = Menu("Powrót", start_x + 160, button_y, 140, 50, lambda: None)
+
+        while settings_active:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    self.running = False
+                    settings_active = False
+
+                for slider in sliders:
+                    slider.handle_event(event)
+
+                # zapisz kopiuje wartosci z temp do glownych
+                if save_button.handle_event(event):
+                    self.sounds['menu_click'].play()
+                    self.master_volume = temp_master_volume
+                    self.music_volume = temp_music_volume
+                    self.sfx_volume = temp_sfx_volume
+                    self.update_volumes()
+                    self._save_settings()
+                    settings_active = False
+
+                # powrot nie zapisuje nic
+                if back_button.handle_event(event):
+                    self.sounds['menu_click'].play()
+                    self.update_volumes()  # przywraca glosnosc do poprzednich wartosci
+                    settings_active = False
+
+            self.screen.fill(GAME_BACKGROUND_COLOR)
+            for slider in sliders:
+                slider.draw(self.screen)
+            save_button.draw(self.screen)
+            back_button.draw(self.screen)
+            pygame.display.flip()
+            self.clock.tick(FPS)
 
     def add_notification(self, message, duration_seconds, target_player=None, text_color=WHITE, bg_color=None,
                          position_topleft=None, position_center=None, pos_y_diff=0, font_type=None,
@@ -181,7 +319,7 @@ class Game:
         intro = True
 
         pygame.mixer.music.load(self.menu_music_path)
-        pygame.mixer.music.set_volume(0.4)
+        self.update_volumes()
         pygame.mixer.music.play(loops=-1)
 
         def start_game():
@@ -205,9 +343,12 @@ class Game:
             intro = False
 
         def open_settings():
-            print("TODO")
+            self.sounds['menu_click'].play()
+            self.settings_screen()
 
         def quit_game():
+            self.sounds['menu_click'].play()
+            pygame.time.wait(200)
             pygame.quit()
             sys.exit()
 
@@ -483,7 +624,7 @@ class Game:
         self.race.round_active = False
         self.active_notifications = []
         temp = self.game_map.path
-        self.game_map.path, self.game_map.mask_path = map_config.get_random_map()
+        self.game_map.path, self.game_map.mask_path = get_random_map()
         if self.game_map.path != temp:
             self.bg_image, self.collision_mask = self.game_map.load()
             self.MAP_WIDTH, self.MAP_HEIGHT = self.bg_image.get_size()
