@@ -12,9 +12,8 @@ class RaceManager:
         self.player1points = 0
         self.player2points = 0
         self.globaltimer = 0
-        self.energol_picked_up1=False
-        self.energol_picked_up2=False
-
+        self.energol_picked_up1 = False
+        self.energol_picked_up2 = False
 
         self.player1times = [0, 0, 0]
         self.player2times = [0, 0, 0]
@@ -43,22 +42,26 @@ class RaceManager:
             self.game_instance.sounds['countdown'].play()
 
         if self.game_instance:
-            self.game_instance.add_notification("3!", 1, target_player="global", text_color=config.RED,outline_color=config.BLACK)
+            self.game_instance.add_notification("3!", 1, target_player="global", text_color=config.RED,
+                                                outline_color=config.BLACK)
             self.game_instance.update()
             self.game_instance.draw()
         pygame.time.wait(1000)
         if self.game_instance:
-            self.game_instance.add_notification("2!", 1, target_player="global", text_color=config.ORANGE,outline_color=config.BLACK)
+            self.game_instance.add_notification("2!", 1, target_player="global", text_color=config.ORANGE,
+                                                outline_color=config.BLACK)
             self.game_instance.update()
             self.game_instance.draw()
         pygame.time.wait(1000)
         if self.game_instance:
-            self.game_instance.add_notification("1!", 1, target_player="global", text_color=config.YELLOW,outline_color=config.BLACK)
+            self.game_instance.add_notification("1!", 1, target_player="global", text_color=config.YELLOW,
+                                                outline_color=config.BLACK)
             self.game_instance.update()
             self.game_instance.draw()
         pygame.time.wait(1000)
         if self.game_instance:
-            self.game_instance.add_notification("START!", 1, target_player="global", text_color=config.GREEN,outline_color=config.BLACK)
+            self.game_instance.add_notification("START!", 1, target_player="global", text_color=config.GREEN,
+                                                outline_color=config.BLACK)
             self.game_instance.update()
             self.game_instance.draw()
 
@@ -80,31 +83,31 @@ class RaceManager:
         now = pygame.time.get_ticks()
         new_goal_to_return = None
         self.events.spawn_energy_drinks()
-        self.energol_picked_up1=False
-        self.energol_picked_up2=False
+        self.energol_picked_up1 = False
+        self.energol_picked_up2 = False
 
         for current_energol in self.events.active_energols:
             if current_energol.colliderect(self.player1.rect):
-                self.player1.speed +=2
+                self.player1.speed += 2
                 self.player1.fast_boy(6000)
                 self.events.active_energols.remove(current_energol)
-                self.energol_picked_up1=True
+                self.energol_picked_up1 = True
 
             if current_energol.colliderect(self.player2.rect):
-                self.player2.speed +=2
+                self.player2.speed += 2
                 self.player2.fast_boy(6000)
                 self.events.active_energols.remove(current_energol)
-                self.energol_picked_up2=True
+                self.energol_picked_up2 = True
 
         if self.player1.kurtka:
             if self.events.portier_trigger.colliderect(self.player1.rect):
                 self.player1.kurtka = False
-                self.game_instance.add_notification("Odkladasz kurtke",2,target_player="player1",pos_y_diff=50)
+                self.game_instance.add_notification("Odkladasz kurtke", 2, target_player="player1", pos_y_diff=50)
 
         if self.player2.kurtka:
             if self.events.portier_trigger.colliderect(self.player2.rect):
                 self.player2.kurtka = False
-                self.game_instance.add_notification("Odkladasz kurtke",2,target_player="player2",pos_y_diff=50)
+                self.game_instance.add_notification("Odkladasz kurtke", 2, target_player="player2", pos_y_diff=50)
 
         txt = "Zapomniales odniesc kurtki baranie!!!"
         if self.goal_rect.colliderect(self.player1.rect):
@@ -130,7 +133,7 @@ class RaceManager:
                         self.game_instance.add_notification(finish_message_p1, 3, target_player="player1",
                                                             position_topleft=(200, 700))
             elif not self.player1_finished and self.player1.kurtka:
-                self.game_instance.add_notification(txt,target_player="player1",duration_seconds=3)
+                self.game_instance.add_notification(txt, target_player="player1", duration_seconds=3)
 
         if self.goal_rect.colliderect(self.player2.rect):
             if not self.player2_finished and not self.player2.kurtka:
@@ -155,7 +158,7 @@ class RaceManager:
                         self.game_instance.add_notification(finish_message_p2, 3, target_player="player2",
                                                             position_topleft=(1000, 700))
             elif not self.player2_finished and self.player2.kurtka:
-                self.game_instance.add_notification(txt,target_player="player2",duration_seconds=3)
+                self.game_instance.add_notification(txt, target_player="player2", duration_seconds=3)
 
         if new_goal_to_return:
             self.player1_finished = False
@@ -182,7 +185,7 @@ class RaceManager:
             round_result_message = "Remis - brak punktów"
 
         if self.game_instance:
-            self.game_instance.add_notification(round_result_message, 3, target_player="global",pos_y_diff=-50)
+            self.game_instance.add_notification(round_result_message, 3, target_player="global", pos_y_diff=-50)
 
         self.round_index += 1
         self.round_active = False
@@ -199,23 +202,31 @@ class RaceManager:
         # to dodac do notyfikacji na mega dlugi czas na ekran koncowy jak zostanie zrobiony
 
         # po prostu dodac do notyfikacji i zostawiamy wolne chodzenie ok? ok
-        self.game_instance.add_notification(f"Gracz 1: {self.player1points} pkt",10000,target_player="global",pos_y_diff=50)
-        self.game_instance.add_notification("   Czasy: ",10000,target_player="global",pos_y_diff=100)
-        self.game_instance.add_notification(f"runda 1: {self.player1times[0] / 1000} s",10000,target_player="global",pos_y_diff=150)
-        self.game_instance.add_notification(f"runda 2: {self.player1times[1] / 1000} s",10000,target_player="global",pos_y_diff=200)
-        self.game_instance.add_notification(f"runda 3: {self.player1times[2] / 1000} s",10000,target_player="global",pos_y_diff=250)
-        self.game_instance.add_notification(f"Gracz 2: {self.player2points} pkt",10000,target_player="global",pos_y_diff=300)
-        self.game_instance.add_notification("   Czasy: ",10000,target_player="global",pos_y_diff=350)
-        self.game_instance.add_notification(f"runda 1: {self.player2times[0] / 1000} s",10000,target_player="global",pos_y_diff=400)
-        self.game_instance.add_notification(f"runda 2: {self.player2times[1] / 1000} s",10000,target_player="global",pos_y_diff=450)
-        self.game_instance.add_notification(f"runda 3: {self.player2times[2] / 1000} s",10000,target_player="global",pos_y_diff=500)
+        self.game_instance.add_notification(f"Gracz 1: {self.player1points} pkt", 10000, target_player="global",
+                                            pos_y_diff=50)
+        self.game_instance.add_notification("   Czasy: ", 10000, target_player="global", pos_y_diff=100)
+        self.game_instance.add_notification(f"runda 1: {self.player1times[0] / 1000} s", 10000, target_player="global",
+                                            pos_y_diff=150)
+        self.game_instance.add_notification(f"runda 2: {self.player1times[1] / 1000} s", 10000, target_player="global",
+                                            pos_y_diff=200)
+        self.game_instance.add_notification(f"runda 3: {self.player1times[2] / 1000} s", 10000, target_player="global",
+                                            pos_y_diff=250)
+        self.game_instance.add_notification(f"Gracz 2: {self.player2points} pkt", 10000, target_player="global",
+                                            pos_y_diff=300)
+        self.game_instance.add_notification("   Czasy: ", 10000, target_player="global", pos_y_diff=350)
+        self.game_instance.add_notification(f"runda 1: {self.player2times[0] / 1000} s", 10000, target_player="global",
+                                            pos_y_diff=400)
+        self.game_instance.add_notification(f"runda 2: {self.player2times[1] / 1000} s", 10000, target_player="global",
+                                            pos_y_diff=450)
+        self.game_instance.add_notification(f"runda 3: {self.player2times[2] / 1000} s", 10000, target_player="global",
+                                            pos_y_diff=500)
 
         if self.player1points > self.player2points:
             print("🥇 Wygrywa Gracz 1!")
-            #self.game_instance.sounds['game_win'].play()
+            # self.game_instance.sounds['game_win'].play()
         elif self.player2points > self.player1points:
             print("🥇 Wygrywa Gracz 2!")
-           # self.game_instance.sounds['game_win'].play()
+        # self.game_instance.sounds['game_win'].play()
         else:
             print("🤝 Remis!")
 

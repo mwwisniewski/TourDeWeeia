@@ -46,7 +46,8 @@ def character_selection_screen(game_instance, screen, width, clock):
     character_options = []
     for path in character_paths:
         img = pygame.image.load(f"{path}/idle_down_0.png").convert_alpha()
-        img = pygame.transform.scale(img, (50 * config.ZOOM_CHARACTER_SCREEN_MULT, 50 * config.ZOOM_CHARACTER_SCREEN_MULT))
+        img = pygame.transform.scale(img,
+                                     (50 * config.ZOOM_CHARACTER_SCREEN_MULT, 50 * config.ZOOM_CHARACTER_SCREEN_MULT))
         character_options.append((path, img))  # (ścieżka, obrazek)
 
     font = pygame.font.SysFont("arial", int(24 * config.ZOOM_CHARACTER_SCREEN_MULT))
@@ -167,4 +168,3 @@ def character_selection_screen(game_instance, screen, width, clock):
         clock.tick(config.FPS)
 
     return selected_p1, selected_p2
-

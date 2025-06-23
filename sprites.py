@@ -12,8 +12,7 @@ class Player(pygame.sprite.Sprite):
         self.freeze_until = 0
         self.slowed_until = 0
         self.faster_until = 0
-        self.kurtka= False
-
+        self.kurtka = False
 
         self.uses_sprites = isinstance(color_or_path, str)
         if self.uses_sprites:
@@ -128,7 +127,7 @@ class Player(pygame.sprite.Sprite):
     def slow_until(self, duration_ms):
         self.slowed_until = pygame.time.get_ticks() + duration_ms
 
-    def fast_boy(self,duration_ms):
+    def fast_boy(self, duration_ms):
         now = pygame.time.get_ticks()
         if self.faster_until:
             self.faster_until += duration_ms

@@ -2,6 +2,7 @@ import pygame
 import random
 import config
 
+
 class MapZone:
     def __init__(self, name, area_rect):
         self.name = name
@@ -41,6 +42,7 @@ class Map:
     def get_random_spawn_point(self):
         return random.choice(self.spawn_points)
 
+
 def get_random_map():
     map_variants = [
         [config.DEFAULT_MAP, config.DEFAULT_MAP_MASK],
@@ -49,9 +51,8 @@ def get_random_map():
         ["img/zakaz przejscia 3.png", "img/zakaz przejscia 3_maska.png"],
         ["img/zakaz przejscia 4.png", "img/zakaz przejscia 4_maska.png"],
     ]
-    i = random.randint(0,4)
-    return map_variants[i][0],map_variants[i][1]
-
+    i = random.randint(0, 4)
+    return map_variants[i][0], map_variants[i][1]
 
 
 def create_main_map():
@@ -173,7 +174,7 @@ def create_main_map():
         ZoneNames("Klatka schodowa - 4 Piętro", pygame.Rect(8060, 0, 650, 650))
     ]
 
-    path,mask = get_random_map()
+    path, mask = get_random_map()
 
     # Zapisane koordynaty spawnow dla roznych poziomow:
     # Wejscie WEEIA: (2140, 275), (2060, 360), (3470, 780)
@@ -183,7 +184,7 @@ def create_main_map():
     # Pietra sieci: (8210, 300), (6840, 150), (5425, 530), (4900, 400)
     spawn_list = [(2140, 275), (2060, 360), (3470, 780), (1425, 180), (1020, 1475), (1020, 1320), (1350, 1415),
                   (140, 3400), (1200, 2460), (3060, 3450), (8210, 300), (6840, 150), (5425, 530), (4900, 400)]
-    return Map(path,mask, spawn_list,
+    return Map(path, mask, spawn_list,
                transition_zones=transitions,
                target_rooms=rooms, named_zones=named_map_zones)
     # MAPA_MASKA_TEST do usuniecia i podmienienia na MAPA_MASKA jak zostanie dodana do main brancha

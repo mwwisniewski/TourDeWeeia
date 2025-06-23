@@ -64,7 +64,6 @@ class Game:
         self.sounds = {}
         self._load_sounds()
 
-
     def _load_sounds(self):
         self.menu_music_path = "sounds/menu_background_opcja1.mp3"
         self.race_music_path = "sounds/race_background_music.mp3"
@@ -76,7 +75,7 @@ class Game:
         self.sounds['success'] = pygame.mixer.Sound("sounds/success_opcja2.wav")
         self.sounds['lekotka_ouch'] = pygame.mixer.Sound("sounds/ouch_opcja1.wav")
         self.sounds['bone_crack'] = pygame.mixer.Sound("sounds/bone_crack.wav")
-        #self.sounds['energizer'] = pygame.mixer.Sound("sounds/energizer.wav")
+        # self.sounds['energizer'] = pygame.mixer.Sound("sounds/energizer.wav")
 
     def add_notification(self, message, duration_seconds, target_player=None, text_color=WHITE, bg_color=None,
                          position_topleft=None, position_center=None, pos_y_diff=0, font_type=None,
@@ -91,13 +90,13 @@ class Game:
 
         # Wybór czcionki
         if font_type == "zone":
-            font = self.zone_font           #20
+            font = self.zone_font  # 20
         elif font_type == "game":
-            font = self.game_info_font      #24
+            font = self.game_info_font  # 24
         elif font_type == "target":
-            font = self.target_info_font    #18
+            font = self.target_info_font  # 18
         else:
-            font = self.notification_font   #30
+            font = self.notification_font  # 30
 
         text_surf = font.render(message, True, text_color)
         padding = 10
@@ -150,8 +149,8 @@ class Game:
             "end_time": end_time
         })
 
-    def render_text_with_outline(self,message: str,text_color= WHITE,outline_color= BLACK,
-                                 antialias: bool = True,font = None,outline_thickness=1) -> pygame.Surface:
+    def render_text_with_outline(self, message: str, text_color=WHITE, outline_color=BLACK,
+                                 antialias: bool = True, font=None, outline_thickness=1) -> pygame.Surface:
         # tekst z obramowka (caly czas)
         # :param antialias: Czy używać antyaliasingu (domyślnie True).
 
@@ -170,7 +169,6 @@ class Game:
 
         for dx in range(-outline_thickness, outline_thickness + 1):
             for dy in range(-outline_thickness, outline_thickness + 1):
-
                 outline_pos = (outline_thickness + dx, outline_thickness + dy)
                 final_surface.blit(outline_surf, outline_pos)
 
@@ -178,6 +176,7 @@ class Game:
         final_surface.blit(text_surf, text_pos_on_final)
 
         return final_surface
+
     def intro_screen(self):
         intro = True
 
@@ -267,7 +266,7 @@ class Game:
                 self.race.start_round(self.current_target_room.rect)
                 if self.game_map.path != DEFAULT_MAP and not self.notified_flag:
                     self.add_notification("UWAGA!! NA WYDZIALE MAMY REMONT, MOZLIWE ZABLOKOWANE PRZEJSCIA", 6,
-                                          target_player="global", pos_y_diff=100, font_type="game",)
+                                          target_player="global", pos_y_diff=100, font_type="game", )
                     self.notified_flag = True
             self.clock.tick(FPS)
 
@@ -326,9 +325,11 @@ class Game:
                 self.current_target_room = goal
 
         if self.race.energol_picked_up1:
-            self.add_notification("Znajdujesz energetyka!",1,target_player="player1",font_type="game",text_color=GREEN,pos_y_diff=150)
+            self.add_notification("Znajdujesz energetyka!", 1, target_player="player1", font_type="game",
+                                  text_color=GREEN, pos_y_diff=150)
         if self.race.energol_picked_up2:
-            self.add_notification("Znajdujesz energetyka!",1,target_player="player2",font_type="game",text_color=GREEN,pos_y_diff=150)
+            self.add_notification("Znajdujesz energetyka!", 1, target_player="player2", font_type="game",
+                                  text_color=GREEN, pos_y_diff=150)
 
         current_time = pygame.time.get_ticks()
         self.active_notifications = [n for n in self.active_notifications if current_time < n["end_time"]]

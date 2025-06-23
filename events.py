@@ -14,7 +14,7 @@ class EventManager:
         self.target_rooms = None
         self.target_room = None
         self.new_target_room = None
-        self.portier_trigger = pygame.Rect(3170,2990,95,255)
+        self.portier_trigger = pygame.Rect(3170, 2990, 95, 255)
         self.map_triggers = [
             map_config.TransitionZone("Pierwsze pietro -> Wejscie WEEIA", pygame.Rect(40, 40, 185, 40), (2300, 1400)),
             map_config.TransitionZone("Pierwsze pietro -> Parter dlugi korytarz #1", pygame.Rect(968, 135, 32, 90),
@@ -32,16 +32,16 @@ class EventManager:
         ]
         self.active_energols = []
         self.energol_spawn_points = [
-            pygame.Rect(100,300,ENE_WIDTH,ENE_HEIGHT),
-            pygame.Rect(1320, 290, ENE_WIDTH,ENE_HEIGHT),
-            pygame.Rect(1330, 1500, ENE_WIDTH,ENE_HEIGHT),
-            pygame.Rect(3380, 1020, ENE_WIDTH,ENE_HEIGHT),
-            pygame.Rect(3340,2610, ENE_WIDTH,ENE_HEIGHT),
-            pygame.Rect(1470,2000, ENE_WIDTH,ENE_HEIGHT),
-            pygame.Rect(4000,380, ENE_WIDTH,ENE_HEIGHT),
-            pygame.Rect(4000,500, ENE_WIDTH,ENE_HEIGHT),
-            pygame.Rect(6330,110, ENE_WIDTH,ENE_HEIGHT),
-            pygame.Rect(7730,110, ENE_WIDTH,ENE_HEIGHT),
+            pygame.Rect(100, 300, ENE_WIDTH, ENE_HEIGHT),
+            pygame.Rect(1320, 290, ENE_WIDTH, ENE_HEIGHT),
+            pygame.Rect(1330, 1500, ENE_WIDTH, ENE_HEIGHT),
+            pygame.Rect(3380, 1020, ENE_WIDTH, ENE_HEIGHT),
+            pygame.Rect(3340, 2610, ENE_WIDTH, ENE_HEIGHT),
+            pygame.Rect(1470, 2000, ENE_WIDTH, ENE_HEIGHT),
+            pygame.Rect(4000, 380, ENE_WIDTH, ENE_HEIGHT),
+            pygame.Rect(4000, 500, ENE_WIDTH, ENE_HEIGHT),
+            pygame.Rect(6330, 110, ENE_WIDTH, ENE_HEIGHT),
+            pygame.Rect(7730, 110, ENE_WIDTH, ENE_HEIGHT),
         ]
 
     # static mozna generowac wraz z mapa
@@ -113,12 +113,14 @@ class EventManager:
     def event_portier(self):  # static
         if random.random() < EVENT_PORTIER_CHANCE:
             self.player2.kurtka = True
-            self.game_ref.add_notification("Musisz odnieść kurtkę do szatni!!!",3,target_player="player2",pos_y_diff=50)
+            self.game_ref.add_notification("Musisz odnieść kurtkę do szatni!!!", 3, target_player="player2",
+                                           pos_y_diff=50)
         else:
             self.player2.kurtka = False
 
         if random.random() < EVENT_PORTIER_CHANCE:
             self.player1.kurtka = True
-            self.game_ref.add_notification("Musisz odnieść kurtkę do szatni!!!",3,target_player="player1",pos_y_diff=50)
+            self.game_ref.add_notification("Musisz odnieść kurtkę do szatni!!!", 3, target_player="player1",
+                                           pos_y_diff=50)
         else:
             self.player2.kurtka = False
