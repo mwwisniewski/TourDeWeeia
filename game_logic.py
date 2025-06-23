@@ -82,7 +82,7 @@ class RaceManager:
 
         now = pygame.time.get_ticks()
         new_goal_to_return = None
-        self.events.spawn_energols()
+        self.events.spawn_energy_drinks()
         self.energol_picked_up1 = False
         self.energol_picked_up2 = False
 

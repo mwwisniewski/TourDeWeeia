@@ -1,5 +1,6 @@
 import pygame
 import random
+import config
 
 
 class MapZone:
@@ -41,17 +42,17 @@ class Map:
     def get_random_spawn_point(self):
         return random.choice(self.spawn_points)
 
+
 def get_random_map():
     map_variants = [
-        ["img/mapa_ostateczna.png", "img/mapa_ostateczna_maska.png"],
+        [config.DEFAULT_MAP, config.DEFAULT_MAP_MASK],
         ["img/zakaz przejscia 1.png", "img/zakaz przejscia 1_maska.png"],
         ["img/zakaz przejscia 2.png", "img/zakaz przejscia 2_maska.png"],
         ["img/zakaz przejscia 3.png", "img/zakaz przejscia 3_maska.png"],
         ["img/zakaz przejscia 4.png", "img/zakaz przejscia 4_maska.png"],
     ]
-    i = random.randint(0,4)
-    return map_variants[i][0],map_variants[i][1]
-
+    i = random.randint(0, 4)
+    return map_variants[i][0], map_variants[i][1]
 
 
 def create_main_map():
@@ -59,7 +60,7 @@ def create_main_map():
         TransitionZone("Wejscie WEEIA -> Pierwsze pietro", pygame.Rect(2190, 1440, 240, 100), (130, 110)),
         TransitionZone("Wejscie WEEIA -> Parter dlugi korytarz", pygame.Rect(3220, 1538, 180, 30), (3100, 2010)),
         TransitionZone("Wejscie WEEIA -> Pierwsze pietro sieci (DT i Bistro)", pygame.Rect(2390, 110, 50, 80),
-                       (4870, 370)),
+                       (4780, 480)),
         TransitionZone("Parter dlugi korytarz -> Wejscie WEEIA", pygame.Rect(3020, 1970, 170, 30), (3300, 1500)),
         TransitionZone("Parter dlugi korytarz -> Pierwsze pietro #1", pygame.Rect(2725, 1965, 25, 90), (1075, 120)),
         TransitionZone("Parter dlugi korytarz -> Pierwsze pietro #2", pygame.Rect(2570, 2995, 100, 180), (840, 1150)),
@@ -68,7 +69,7 @@ def create_main_map():
         TransitionZone("Pierwsze pietro -> Parter dlugi korytarz #2", pygame.Rect(616, 1065, 134, 175), (2770, 3045)),
         TransitionZone("Pierwsze pietro -> IMSI", pygame.Rect(1535, 685, 30, 40), (1510, 3400)),
         TransitionZone("IMSI -> Pierwsze pietro", pygame.Rect(1508, 3456, 50, 40), (1440, 705)),
-        TransitionZone("Pierwsze pietro sieci (DT i Bistro) -> Wejscie WEEIA", pygame.Rect(4790, 260, 180, 70),
+        TransitionZone("Pierwsze pietro sieci (DT i Bistro) -> Wejscie WEEIA", pygame.Rect(4790, 230, 180, 70),
                        (2350, 150)),
         TransitionZone("Pierwsze pietro sieci (DT i Bistro) -> Drugie pietro sieci", pygame.Rect(4690, 40, 80, 180),
                        (5810, 370)),
@@ -173,9 +174,9 @@ def create_main_map():
         ZoneNames("Klatka schodowa - 4 Piętro", pygame.Rect(8060, 0, 650, 650))
     ]
 
-    path,mask = get_random_map()
+    path, mask = get_random_map()
 
-    # Zapisane koordynaty spawnow dla roznych pozimow:
+    # Zapisane koordynaty spawnow dla roznych poziomow:
     # Wejscie WEEIA: (2140, 275), (2060, 360), (3470, 780)
     # Pierwsze Pietro: (1425, 180), (1020, 1475), (1020, 1320), (1350, 1415)
     # IMSI: (140, 3400), (1200, 2460)
@@ -183,7 +184,7 @@ def create_main_map():
     # Pietra sieci: (8210, 300), (6840, 150), (5425, 530), (4900, 400)
     spawn_list = [(2140, 275), (2060, 360), (3470, 780), (1425, 180), (1020, 1475), (1020, 1320), (1350, 1415),
                   (140, 3400), (1200, 2460), (3060, 3450), (8210, 300), (6840, 150), (5425, 530), (4900, 400)]
-    return Map(path,mask, spawn_list,
+    return Map(path, mask, spawn_list,
                transition_zones=transitions,
                target_rooms=rooms, named_zones=named_map_zones)
     # MAPA_MASKA_TEST do usuniecia i podmienienia na MAPA_MASKA jak zostanie dodana do main brancha

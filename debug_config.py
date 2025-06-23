@@ -1,12 +1,14 @@
 import pygame
 from config import RED, GREEN, BLUE, YELLOW
 
+
 def draw_debug_rect(surface, rect, color, camera_offset, zoom, width=2):
     view_x = rect.x * zoom - camera_offset.x
     view_y = rect.y * zoom - camera_offset.y
     view_w = rect.width * zoom
     view_h = rect.height * zoom
     pygame.draw.rect(surface, color, pygame.Rect(view_x, view_y, view_w, view_h), width)
+
 
 def draw_debug_visuals(surface, game_map, current_target_room, camera_offset, zoom):
     for zone in game_map.transition_zones:
