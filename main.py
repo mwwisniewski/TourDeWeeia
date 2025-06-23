@@ -17,6 +17,27 @@ class Game:
         pygame.mixer.init()
         pygame.display.set_mode((1, 1))
 
+        self.settings_file = "settings.json"
+        self.master_volume = 1.0
+        self.music_volume = 1.0
+        self.sfx_volume = 1.0
+        self.debug_mode = False  # DO TESTOW POTEM ZMIENIC NA FALSE LUB NONE!! (POKAZUJE STREFY PRZEJSC, STREFY SAL ORAZ FPSY)
+        self.printed_destination = True
+        self.printed_arrived = False
+
+        self._load_settings()
+
+        self.player1 = None  # Zeby pozbyc sie Unresolved reference
+        self.player2 = None
+
+        self.player_speed = 0
+        self.zoom = 0
+        self.event_sala_chance = 0
+        self.event_lekotka_chance = 0
+        self.event_portier_chance = 0
+
+        self.apply_game_settings()
+
         self.MAP_HEIGHT = None
         self.MAP_WIDTH = None
 
@@ -26,10 +47,8 @@ class Game:
         self.bg_image, self.collision_mask = self.game_map.load()
         self.MAP_WIDTH, self.MAP_HEIGHT = self.bg_image.get_size()
 
-        self.zoom = ZOOM
         self.scaled_bg = pygame.transform.smoothscale(self.bg_image, (int(self.MAP_WIDTH * self.zoom),
                                                                       int(self.MAP_HEIGHT * self.zoom)))
-
         self.WIDTH = WIDTH
         self.HEIGHT = HEIGHT
         self.screen = pygame.display.set_mode((self.WIDTH, self.HEIGHT), pygame.HWSURFACE | pygame.DOUBLEBUF)
@@ -41,14 +60,7 @@ class Game:
         self.left_view = pygame.Surface((self.WIDTH // 2, self.HEIGHT))
         self.right_view = pygame.Surface((self.WIDTH // 2, self.HEIGHT))
         self.all_sprites = pygame.sprite.Group()
-        self.player1 = None  # Zeby pozbyc sie Unresolved reference
-        self.player2 = None
         self.race = None
-        self.debug_mode = config.DEBUG  # DO TESTOW POTEM ZMIENIC NA FALSE LUB NONE!! (POKAZUJE STREFY PRZEJSC, STREFY SAL ORAZ FPSY)
-        self.printed_destination = True
-        if self.debug_mode:
-            self.printed_arrived = False
-
         self.default_zone_name = "Nieznany obszar"
         self.player1_current_zone_name = self.default_zone_name
         self.player2_current_zone_name = self.default_zone_name
@@ -62,14 +74,6 @@ class Game:
         self.notified_flag = False
         self.energolimg = pygame.image.load("img/grafika power-up.png")
 
-        self.settings_file = "settings.json"
-
-        self.master_volume = 1.0
-        self.music_volume = 1.0
-        self.sfx_volume = 1.0
-
-        self._load_settings()
-
         self.sounds = {}
         self._load_sounds()
         self.update_volumes()
@@ -78,7 +82,8 @@ class Game:
         settings = {
             'master_volume': self.master_volume,
             'music_volume': self.music_volume,
-            'sfx_volume': self.sfx_volume
+            'sfx_volume': self.sfx_volume,
+            'debug_mode': self.debug_mode
         }
         with open(self.settings_file, 'w') as f:
             json.dump(settings, f, indent=4)  #
@@ -91,11 +96,41 @@ class Game:
                 self.master_volume = settings.get('master_volume', 1.0)
                 self.music_volume = settings.get('music_volume', 1.0)
                 self.sfx_volume = settings.get('sfx_volume', 1.0)
-                print("domyslne ustawienia")
+                self.debug_mode = settings.get('debug_mode', False)
+                print("wczytane pomyslnie")
         except FileNotFoundError:
             print("brak pliku z ustawieniami")
         except json.JSONDecodeError:
             print("plik pusty lub uszkodzony")
+
+    def apply_game_settings(self):
+        if self.debug_mode:
+            settings = config.DEBUG_SETTINGS
+        else:
+            settings = config.NORMAL_SETTINGS
+
+        self.player_speed = settings["PLAYER_SPEED"]
+        self.zoom = settings["ZOOM"]
+        self.event_sala_chance = settings["EVENT_SALA_CHANCE"]
+        self.event_lekotka_chance = settings["EVENT_LEKOTKA_CHANCE"]
+        self.event_portier_chance = settings["EVENT_PORTIER_CHANCE"]
+
+        if self.player1:
+            self.player1.speed = self.player_speed
+            self.player1.default_speed = self.player_speed
+        if self.player2:
+            self.player2.speed = self.player_speed
+            self.player2.default_speed = self.player_speed
+
+        # zabezpiecza ze mozna uzyc funkcji przy inicjalizacji i w trakcie gry
+        if hasattr(self, 'bg_image') and self.bg_image:
+            self.scaled_bg = pygame.transform.smoothscale(self.bg_image, (int(self.MAP_WIDTH * self.zoom),
+                                                                          int(self.MAP_HEIGHT * self.zoom)))
+
+    def set_debug_mode(self, value):
+        self.debug_mode = value
+        if 'menu_click' in self.sounds:
+            self.sounds['menu_click'].play()
 
     def _load_sounds(self):
         self.menu_music_path = "sounds/menu_background_opcja1.mp3"
@@ -133,14 +168,23 @@ class Game:
         self.update_volumes()
 
     def settings_screen(self):
-        # TODO
-        # checkbox "Tryb dla admina"
         settings_active = True
+
+        settings_bg = pygame.image.load(config.LOGO).convert()
+        settings_bg = pygame.transform.scale(settings_bg, (self.WIDTH, self.HEIGHT))
+        self.screen.blit(settings_bg, (0, 0))
 
         # tymczasowe zmienne modyfikowane przez suwaki
         temp_master_volume = self.master_volume
         temp_music_volume = self.music_volume
         temp_sfx_volume = self.sfx_volume
+        temp_debug_mode = self.debug_mode
+
+        def set_temp_debug(value):
+            nonlocal temp_debug_mode
+            temp_debug_mode = value
+            if 'menu_click' in self.sounds:
+                self.sounds['menu_click'].play()
 
         def set_temp_master(value):
             nonlocal temp_master_volume
@@ -166,6 +210,8 @@ class Game:
         slider_height = 20
         start_x = self.WIDTH // 2 - slider_width // 2
         start_y = 200
+        checkbox_y = start_y + 280
+        debug_checkbox = Checkbox(start_x, checkbox_y, 25, temp_debug_mode, "Tryb dla admina", set_temp_debug)
 
         sliders = [
             Slider(start_x, start_y, slider_width, slider_height, 0.0, 1.0,
@@ -178,7 +224,7 @@ class Game:
                    temp_sfx_volume, "Głośność efektów", set_temp_sfx)
         ]
 
-        button_y = start_y + 300
+        button_y = start_y + 350
         save_button = Menu("Zapisz", start_x, button_y, 140, 50, lambda: None)
         back_button = Menu("Powrót", start_x + 160, button_y, 140, 50, lambda: None)
 
@@ -190,13 +236,18 @@ class Game:
 
                 for slider in sliders:
                     slider.handle_event(event)
+                debug_checkbox.handle_event(event)
 
                 # zapisz kopiuje wartosci z temp do glownych
                 if save_button.handle_event(event):
                     self.sounds['menu_click'].play()
+
                     self.master_volume = temp_master_volume
                     self.music_volume = temp_music_volume
                     self.sfx_volume = temp_sfx_volume
+                    self.debug_mode = temp_debug_mode
+
+                    self.apply_game_settings()
                     self.update_volumes()
                     self._save_settings()
                     settings_active = False
@@ -207,9 +258,10 @@ class Game:
                     self.update_volumes()  # przywraca glosnosc do poprzednich wartosci
                     settings_active = False
 
-            self.screen.fill(GAME_BACKGROUND_COLOR)
+            self.screen.blit(settings_bg, (0, 0))
             for slider in sliders:
                 slider.draw(self.screen)
+            debug_checkbox.draw(self.screen)
             save_button.draw(self.screen)
             back_button.draw(self.screen)
             pygame.display.flip()
@@ -325,21 +377,26 @@ class Game:
         def start_game():
             nonlocal intro
 
-            self.all_sprites = pygame.sprite.Group()
-
             self.sounds['menu_click'].play()
-
             action, selected_p1, selected_p2 = character_selection_screen(self, self.screen, self.WIDTH, self.clock)
 
             if action == "back":
                 return
 
+            pygame.mixer.music.fadeout(500)
+            pygame.time.wait(500)
+            pygame.mixer.music.load(self.race_music_path)
+            self.update_volumes()
+            pygame.mixer.music.play(loops=-1)
+
+            self.all_sprites = pygame.sprite.Group()
+
             spawn_x1, spawn_y1 = self.game_map.get_random_spawn_point()
             spawn_x2, spawn_y2 = self.game_map.get_random_spawn_point()
             self.current_target_room = random.choice(self.game_map.target_rooms)
             self.is_current_target_room = True
-            self.player1 = Player(spawn_x1, spawn_y1, CONTROL_TYPE_WSAD, selected_p1)
-            self.player2 = Player(spawn_x2, spawn_y2, CONTROL_TYPE_ARROWS, selected_p2)
+            self.player1 = Player(spawn_x1, spawn_y1, CONTROL_TYPE_WSAD, selected_p1, self.player_speed)
+            self.player2 = Player(spawn_x2, spawn_y2, CONTROL_TYPE_ARROWS, selected_p2, self.player_speed)
             self.all_sprites.add(self.player1)
             self.all_sprites.add(self.player2)
             self.race = RaceManager(self.player1, self.player2, self)
@@ -357,7 +414,7 @@ class Game:
             pygame.quit()
             sys.exit()
 
-        menu_bg = pygame.image.load("img/logo.png").convert()
+        menu_bg = pygame.image.load(config.LOGO).convert()
         menu_bg = pygame.transform.scale(menu_bg, (self.WIDTH, self.HEIGHT))
 
         button_width = 160
@@ -378,8 +435,7 @@ class Game:
                 if event.type == pygame.QUIT:
                     quit_game()
                 for button in buttons:
-                    if button.handle_event(event):
-                        self.sounds['menu_click'].play()
+                    button.handle_event(event)
 
             self.screen.blit(menu_bg, (0, 0))
             for button in buttons:
@@ -633,9 +689,18 @@ class Game:
         if self.game_map.path != temp:
             self.bg_image, self.collision_mask = self.game_map.load()
             self.MAP_WIDTH, self.MAP_HEIGHT = self.bg_image.get_size()
+            self.scaled_bg = pygame.transform.smoothscale(self.bg_image, (
+                int(self.MAP_WIDTH * self.zoom), int(self.MAP_HEIGHT * self.zoom)))
         self.notified_flag = False
         self.race.reset_players_state()
-        self.add_notification("Nastąpił restart gry!", 5, target_player="global", position_center=(800, 800))
+
+        pygame.mixer.music.stop()
+        pygame.mixer.music.load(self.race_music_path)
+        self.update_volumes()
+        pygame.mixer.music.play(loops=-1)
+
+        self.add_notification("Nastąpił restart gry!", 5, target_player="global",
+                              position_center=(self.WIDTH // 2, self.HEIGHT // 2))
 
 
 if __name__ == "__main__":

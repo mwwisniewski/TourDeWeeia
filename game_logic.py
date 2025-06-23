@@ -65,15 +65,10 @@ class RaceManager:
             self.game_instance.update()
             self.game_instance.draw()
 
-            pygame.mixer.music.load(self.game_instance.race_music_path)
-            self.game_instance.update_volumes()
-            pygame.mixer.music.play(loops=-1)
-
         self.globaltimer = pygame.time.get_ticks()
         self.round_active = True
         self.player1_finished = False
         self.player2_finished = False
-
         pygame.event.clear()
 
     def update(self):
@@ -202,6 +197,7 @@ class RaceManager:
             self.game_instance.add_notification(final_message, 10000, target_player="global")
             pygame.mixer.music.stop()
             pygame.mixer.music.load(self.game_instance.end_of_match)
+            self.game_instance.update_volumes()
             pygame.mixer.music.play(loops=-1)
 
         # to dodac do notyfikacji na mega dlugi czas na ekran koncowy jak zostanie zrobiony
@@ -231,17 +227,17 @@ class RaceManager:
             # self.game_instance.sounds['game_win'].play()
         elif self.player2points > self.player1points:
             print("dzwiek dla wygranej")
-            #self.game_instance.sounds['game_win'].play()
+            # self.game_instance.sounds['game_win'].play()
         else:
             print("🤝 Remis!")
-            #self.game_instance.sounds['game_win'].play()
+            # self.game_instance.sounds['game_win'].play()
 
     def reset_players_state(self):
         self.player2.freezed_until = 0
         self.player1.freezed_until = 0
         self.player2.slowed_until = 0
-        self.player1.freezed_until = 0
+        self.player1.slowed_until = 0
         self.player2.faster_until = 0
         self.player1.faster_until = 0
-        self.player1.speed = config.PLAYER_SPEED
-        self.player2.speed = config.PLAYER_SPEED
+        self.player1.speed = self.game_instance.player_speed
+        self.player2.speed = self.game_instance.player_speed
