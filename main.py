@@ -411,7 +411,7 @@ class Game:
                 self.race.events.get_current_target_room(self.current_target_room)
                 self.race.start_round(self.current_target_room.rect)
                 if self.game_map.path != DEFAULT_MAP and not self.notified_flag:
-                    self.add_notification("UWAGA!! NA WYDZIALE MAMY REMONT, MOZLIWE ZABLOKOWANE PRZEJSCIA", 6,
+                    self.add_notification("UWAGA!! NA WYDZIALE MAMY REMONT, MOŻLIWE ZABLOKOWANE PRZEJŚCIA", 6,
                                           target_player="global", pos_y_diff=100, font_type="game", )
                     self.notified_flag = True
             self.clock.tick(FPS)
