@@ -63,7 +63,7 @@ class RaceManager:
             self.game_instance.draw()
 
             pygame.mixer.music.load(self.game_instance.race_music_path)
-            pygame.mixer.music.set_volume(0.3)
+            self.game_instance.update_volumes()
             pygame.mixer.music.play(loops=-1)
 
         self.globaltimer = pygame.time.get_ticks()
@@ -195,6 +195,9 @@ class RaceManager:
         final_message = "Koniec gry!"
         if self.game_instance:
             self.game_instance.add_notification(final_message, 10000, target_player="global")
+            pygame.mixer.music.stop()
+            pygame.mixer.music.load(self.game_instance.end_of_match)
+            pygame.mixer.music.play(loops=-1)
 
         # to dodac do notyfikacji na mega dlugi czas na ekran koncowy jak zostanie zrobiony
 
