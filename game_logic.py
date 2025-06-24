@@ -239,5 +239,7 @@ class RaceManager:
         self.player1.slowed_until = 0
         self.player2.faster_until = 0
         self.player1.faster_until = 0
+        self.player1.kurtka = False
+        self.player2.kurtka = False
         self.player1.speed = self.game_instance.player_speed
         self.player2.speed = self.game_instance.player_speed
