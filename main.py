@@ -529,9 +529,11 @@ class Game:
         if self.race.energol_picked_up1:
             self.add_notification("Znajdujesz energetyka!", 1, target_player="player1", font_type="game",
                                   text_color=GREEN, pos_y_diff=150)
+            self.sounds['energizer'].play()
         if self.race.energol_picked_up2:
             self.add_notification("Znajdujesz energetyka!", 1, target_player="player2", font_type="game",
                                   text_color=GREEN, pos_y_diff=150)
+            self.sounds['energizer'].play()
 
         current_time = pygame.time.get_ticks()
         self.active_notifications = [n for n in self.active_notifications if current_time < n["end_time"]]
