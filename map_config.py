@@ -65,9 +65,9 @@ def create_main_map():
         TransitionZone("Parter dlugi korytarz -> Pierwsze pietro #1", pygame.Rect(2725, 1965, 25, 90), (1075, 120)),
         TransitionZone("Parter dlugi korytarz -> Pierwsze pietro #2", pygame.Rect(2570, 2995, 100, 180), (840, 1150)),
         TransitionZone("Pierwsze pietro -> Wejscie WEEIA", pygame.Rect(40, 40, 185, 40), (2300, 1350)),
-        ##TU ZMIENIONE NA CHWILE PAMIETAJ
+
         TransitionZone("Pierwsze pietro -> Parter dlugi korytarz #1", pygame.Rect(968, 135, 32, 90), (2820, 2075)),
-        TransitionZone("Pierwsze pietro -> Parter dlugi korytarz #2", pygame.Rect(616, 1065, 134, 175), (2770, 3045)),
+        TransitionZone("Pierwsze pietro -> Parter dlugi korytarz #2", pygame.Rect(616, 1065, 134, 175), (2800, 3000)),
         TransitionZone("Pierwsze pietro -> IMSI", pygame.Rect(1535, 685, 30, 40), (1510, 3400)),
         TransitionZone("IMSI -> Pierwsze pietro", pygame.Rect(1508, 3456, 50, 40), (1440, 705)),
         TransitionZone("Pierwsze pietro sieci (DT i Bistro) -> Wejscie WEEIA", pygame.Rect(4790, 230, 180, 70),

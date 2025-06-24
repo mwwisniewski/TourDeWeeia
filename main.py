@@ -143,7 +143,7 @@ class Game:
         self.sounds['success'] = pygame.mixer.Sound("sounds/success_opcja2.wav")
         self.sounds['lekotka_ouch'] = pygame.mixer.Sound("sounds/ouch_opcja1.wav")
         self.sounds['bone_crack'] = pygame.mixer.Sound("sounds/bone_crack.wav")
-        # self.sounds['energizer'] = pygame.mixer.Sound("sounds/energizer.wav")
+        self.sounds['energizer'] = pygame.mixer.Sound("sounds/energy_drink_sound_effect.mp3")
 
     def update_volumes(self):
         final_music_vol = self.master_volume * self.music_volume
@@ -529,9 +529,11 @@ class Game:
         if self.race.energol_picked_up1:
             self.add_notification("Znajdujesz energetyka!", 1, target_player="player1", font_type="game",
                                   text_color=GREEN, pos_y_diff=150)
+            self.sounds['energizer'].play()
         if self.race.energol_picked_up2:
             self.add_notification("Znajdujesz energetyka!", 1, target_player="player2", font_type="game",
                                   text_color=GREEN, pos_y_diff=150)
+            self.sounds['energizer'].play()
 
         current_time = pygame.time.get_ticks()
         self.active_notifications = [n for n in self.active_notifications if current_time < n["end_time"]]
