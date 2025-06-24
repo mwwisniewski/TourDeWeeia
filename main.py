@@ -143,7 +143,7 @@ class Game:
         self.sounds['success'] = pygame.mixer.Sound("sounds/success_opcja2.wav")
         self.sounds['lekotka_ouch'] = pygame.mixer.Sound("sounds/ouch_opcja1.wav")
         self.sounds['bone_crack'] = pygame.mixer.Sound("sounds/bone_crack.wav")
-        # self.sounds['energizer'] = pygame.mixer.Sound("sounds/energizer.wav")
+        self.sounds['energizer'] = pygame.mixer.Sound("sounds/energy_drink_sound_effect.mp3")
 
     def update_volumes(self):
         final_music_vol = self.master_volume * self.music_volume

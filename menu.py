@@ -32,6 +32,7 @@ class Menu:
         return False
 
 
+
 class Slider:
     def __init__(self, x, y, width, height, min_val, max_val, initial_val, label, callback):
         self.rect = pygame.Rect(x, y, width, height)
@@ -46,12 +47,14 @@ class Slider:
         self.update_handle_pos()
 
         self.dragging = False
-        self.font = pygame.font.SysFont("arial", 24)
+        self.font = pygame.font.SysFont("arial", 24, bold=True)
+
+        self.text_color = config.BLACK
+        self.outline_color = config.WHITE
+        self.outline_thickness = 2
 
     def _update_value_from_pos(self, x_pos):
         new_x = max(self.rect.left, min(x_pos, self.rect.right))
-
-        # przeliczenie pozycji na wartosc
         if self.rect.width > 0:
             ratio = (new_x - self.rect.x) / self.rect.width
             self.value = self.min_val + ratio * (self.max_val - self.min_val)
@@ -65,39 +68,49 @@ class Slider:
         self.handle_rect.centery = self.rect.centery
 
     def draw(self, screen):
-        # suwak tło
+        # Rysowanie suwaka
         pygame.draw.rect(screen, config.DARKGRAY, self.rect)
-
-        # wypelnienie suwaka
         fill_width = (self.value - self.min_val) / (self.max_val - self.min_val) * self.rect.width
         fill_rect = pygame.Rect(self.rect.x, self.rect.y, fill_width, self.rect.height)
         pygame.draw.rect(screen, config.GREEN, fill_rect)
-
-        # uchwyt
         pygame.draw.rect(screen, config.WHITE, self.handle_rect)
         pygame.draw.rect(screen, config.BLACK, self.handle_rect, 2)
 
-        # etykieta
-        label_surf = self.font.render(self.label_text, True, config.BLACK)
-        screen.blit(label_surf, (self.rect.x, self.rect.y - 30))
 
-        # wartosc procentowa
+        # Rysowanie etykiety z obramowaniem
+        label_pos = (self.rect.x, self.rect.y - 30)
+        main_label_surf = self.font.render(self.label_text, True, self.text_color)
+        outline_label_surf = self.font.render(self.label_text, True, self.outline_color)
+
+        for dx in range(-self.outline_thickness, self.outline_thickness + 1):
+            for dy in range(-self.outline_thickness, self.outline_thickness + 1):
+                if dx != 0 or dy != 0:
+                    screen.blit(outline_label_surf, (label_pos[0] + dx, label_pos[1] + dy))
+        screen.blit(main_label_surf, label_pos)
+
+        # Rysowanie wartości procentowej z obramowaniem
         percent_val = int(self.value * 100)
-        value_surf = self.font.render(f"{percent_val}%", True, config.BLACK)
-        screen.blit(value_surf, (self.rect.right + 15, self.rect.centery - value_surf.get_height() // 2))
+        value_text = f"{percent_val}%"
+        main_value_surf = self.font.render(value_text, True, self.text_color)
+        outline_value_surf = self.font.render(value_text, True, self.outline_color)
+
+        value_pos = (self.rect.right + 15, self.rect.centery - main_value_surf.get_height() // 2)
+
+        for dx in range(-self.outline_thickness, self.outline_thickness + 1):
+            for dy in range(-self.outline_thickness, self.outline_thickness + 1):
+                if dx != 0 or dy != 0:
+                    screen.blit(outline_value_surf, (value_pos[0] + dx, value_pos[1] + dy))
+        screen.blit(main_value_surf, value_pos)
 
     def handle_event(self, event):
         mouse_x, mouse_y = pygame.mouse.get_pos()
 
         if event.type == pygame.MOUSEBUTTONDOWN:
-            # czy klikniety w pasek
             if self.rect.collidepoint(event.pos):
                 self.dragging = True
                 self._update_value_from_pos(mouse_x)
-
         elif event.type == pygame.MOUSEBUTTONUP:
             self.dragging = False
-
         elif event.type == pygame.MOUSEMOTION:
             if self.dragging:
                 self._update_value_from_pos(mouse_x)
@@ -262,7 +275,6 @@ def character_selection_screen(game_instance, screen, width, clock):
     else:
         return action_result, None, None
 
-
 class Checkbox:
     def __init__(self, x, y, size, initial_val, label, callback):
         self.rect = pygame.Rect(x, y, size, size)
@@ -270,30 +282,41 @@ class Checkbox:
         self.label_text = label
         self.callback = callback
 
-        self.font = pygame.font.SysFont("arial", 24)
+        # Kolory i czcionka
+        self.text_color = config.BLACK
+        self.outline_color = config.WHITE
+        self.outline_thickness = 2
+        self.font = pygame.font.SysFont("arial", 24, bold=True)
 
-        label_surf = self.font.render(self.label_text, True, config.BLACK)
-        self.label_pos = (self.rect.right + 10, self.rect.centery - label_surf.get_height() // 2)
+        # Obliczenie pozycji etykiety
+        label_surf_for_calc = self.font.render(self.label_text, True, self.text_color)
+        self.label_pos = (self.rect.right + 10, self.rect.centery - label_surf_for_calc.get_height() // 2)
 
     def draw(self, screen):
         pygame.draw.rect(screen, config.BLACK, self.rect, 2)
 
         if self.checked:
-            margin = 4
-            top_left = (self.rect.left + margin, self.rect.top + margin)
-            top_right = (self.rect.right - margin, self.rect.top + margin)
-            bottom_left = (self.rect.left + margin, self.rect.bottom - margin)
-            bottom_right = (self.rect.right - margin, self.rect.bottom - margin)
+            pygame.draw.line(screen, config.GREEN, self.rect.topleft, self.rect.bottomright, 3)
+            pygame.draw.line(screen, config.GREEN, self.rect.topright, self.rect.bottomleft, 3)
 
-            pygame.draw.line(screen, config.GREEN, top_left, bottom_right, 3)
-            pygame.draw.line(screen, config.GREEN, top_right, bottom_left, 3)
 
-        label_surf = self.font.render(self.label_text, True, config.BLACK)
-        screen.blit(label_surf, self.label_pos)
+        text_surf = self.font.render(self.label_text, True, self.text_color)
+        outline_surf = self.font.render(self.label_text, True, self.outline_color)
+
+        if self.outline_thickness > 0:
+            for dx in range(-self.outline_thickness, self.outline_thickness + 1):
+                for dy in range(-self.outline_thickness, self.outline_thickness + 1):
+                    if dx == 0 and dy == 0:
+                        continue
+
+                    outline_pos = (self.label_pos[0] + dx, self.label_pos[1] + dy)
+                    screen.blit(outline_surf, outline_pos)
+
+        screen.blit(text_surf, self.label_pos)
 
     def handle_event(self, event):
         if event.type == pygame.MOUSEBUTTONDOWN:
-            if self.rect.collidepoint(event.pos):
+            if event.button == 1 and self.rect.collidepoint(event.pos):
                 self.checked = not self.checked
                 self.callback(self.checked)
                 return True
